@@ -4,36 +4,34 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
-import org.hyperic.sigar.CpuPerc;
-import org.hyperic.sigar.Sigar;
+/**
+ * AIOÂÆ¢Êà∑Á´ØconnectÂõûË∞ÉÊé•Âè£ÔºåËøûÊé•ÂêéË∞ÉÁî®read„ÄÇ
+ * 
+ * @author zhaohr16
+ * @date 2019/07/03
+ */
+public class AioConnectHandler implements CompletionHandler<Void, AsynchronousSocketChannel> {
+    private ByteBuffer buffer;
+    private static final int BUFFER_SIZE = 20;
+    private AioClient client;
 
-import tools.CPUMonitorCalc;
-import tools.SigarCpu;
+    public AioConnectHandler(AioClient client) {
+        this.client = client;
+    }
 
-public class AioConnectHandler implements CompletionHandler<Void, AsynchronousSocketChannel>{
-	@Override
-	public void completed(Void result, AsynchronousSocketChannel socket) {
-		try {
-			//double cpuTotal = SigarCpu.getCpuTotal();
-			//double cpu = 0;
-			
-			CPUMonitorCalc.getInstance().getProcessCpu();
-			Thread.sleep(100);
-			double cpu = CPUMonitorCalc.getInstance().getProcessCpu();
-			
-			System.out.println("µ±«∞Ω¯≥ÃCPU’º”√¬ : "+cpu);
-			ByteBuffer buffer = ByteBuffer.wrap(String.valueOf(cpu).getBytes("UTF-8"));
-			socket.write(buffer, socket, new AioWriteBuffer(buffer));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-	}
-	
-	@Override
-	public void failed(Throwable exc, AsynchronousSocketChannel attachment) {
-		exc.printStackTrace();
-		
-	}
+    @Override
+    public void completed(Void result, AsynchronousSocketChannel socket) {
+        try {
+            buffer = ByteBuffer.allocate(BUFFER_SIZE);
+            buffer.clear();
+            socket.read(buffer, socket, new AioReadHandler(buffer, client));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    @Override
+    public void failed(Throwable exc, AsynchronousSocketChannel attachment) {
+        exc.printStackTrace();
+    }
 }

@@ -1,40 +1,48 @@
 package server;
 
 import java.net.InetSocketAddress;
-import java.nio.channels.AsynchronousChannelGroup; 
+import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
+import tools.WorkThreadPool;
 
-public class AioServer implements Runnable{
-	private static final int MAX_THREAD = 20;
-	private AsynchronousChannelGroup asynChannelGroup;
-	private AsynchronousServerSocketChannel serverSocket;
-	
-	public AioServer(int port) throws Exception {
-		//ÓÃÏß³Ì³Ø´´½¨Òì²½Í¨µÀ¹ÜÀíÆ÷GroupÔÙ´´½¨serverSocket
-		ExecutorService executor = Executors.newFixedThreadPool(MAX_THREAD);
-		asynChannelGroup = AsynchronousChannelGroup.withThreadPool(executor);
-		serverSocket = AsynchronousServerSocketChannel.open(asynChannelGroup).bind(new InetSocketAddress(port));
-	}
-	
-	public void run() {
-		System.out.println("server start");
-		try {
-			serverSocket.accept(serverSocket, new AioAcceptHandler());
-			Thread.sleep(400000);
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			System.out.println("finally server");
-		}
-	}
+/**
+ * AIOæœåŠ¡ç«¯ä¸»ç±»
+ * 
+ * @author zhaohr16
+ * @date 2019/07/03
+ */
+public class AioServer implements Runnable {
+    private AsynchronousChannelGroup asynChannelGroup;
+    private AsynchronousServerSocketChannel serverSocket;
 
-	public static void main(String[] args) throws Exception {
-		AioServer server = new AioServer(9009);
-		new Thread(server).start();
-		
-	}
+    public AioServer(String ip, int port) throws Exception {
+        ThreadPoolExecutor threadPool = WorkThreadPool.newSingleThreadPool();
+        asynChannelGroup = AsynchronousChannelGroup.withThreadPool(threadPool);
+        serverSocket = AsynchronousServerSocketChannel.open(asynChannelGroup).bind(new InetSocketAddress(ip, port));
+    }
+
+    @Override
+    public void run() {
+        System.out.println("server start");
+        try {
+            serverSocket.accept(serverSocket, new AioAcceptHandler());
+            // å ç”¨cpu
+            while (true) {
+                long bac = 1000000;
+                bac = bac >> 1;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            System.out.println("finally server");
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        AioServer server = new AioServer("127.0.0.1", 9009);
+        new Thread(server).start();
+    }
 
 }

@@ -1,23 +1,30 @@
 package tools;
+
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.ThreadMXBean;
 
-public class CPUMonitorCalc {//»ñÈ¡Ä³½ø³ÌµÄcpuÊ¹ÓÃÂÊ£¬ĞèÒªÒÀÀµÁíÒ»¸ö½ø³Ì¡£
+/**
+ * cpuä¿¡æ¯å¤„ç†ç±»ï¼Œè·å¾—è¿›ç¨‹cpuå ç”¨ç‡ã€‚
+ * 
+ * @author zhaohr16
+ * @date 2019/07/03
+ */
+public class CpuMonitorCalc {
 
-    private static CPUMonitorCalc instance = new CPUMonitorCalc();
+    private static CpuMonitorCalc instance = new CpuMonitorCalc();
 
     private OperatingSystemMXBean osMxBean;
     private ThreadMXBean threadBean;
     private long preTime = System.nanoTime();
     private long preUsedTime = 0;
 
-    private CPUMonitorCalc() {
+    private CpuMonitorCalc() {
         osMxBean = ManagementFactory.getOperatingSystemMXBean();
         threadBean = ManagementFactory.getThreadMXBean();
     }
 
-    public static CPUMonitorCalc getInstance() {
+    public static CpuMonitorCalc getInstance() {
         return instance;
     }
 
@@ -31,6 +38,6 @@ public class CPUMonitorCalc {//»ñÈ¡Ä³½ø³ÌµÄcpuÊ¹ÓÃÂÊ£¬ĞèÒªÒÀÀµÁíÒ»¸ö½ø³Ì¡£
         long totalPassedTime = curtime - preTime;
         preTime = curtime;
         preUsedTime = totalTime;
-        return (((double) usedTime) / totalPassedTime / osMxBean.getAvailableProcessors()) * 100;
+        return (((double)usedTime) / totalPassedTime / osMxBean.getAvailableProcessors()) * 100;
     }
 }

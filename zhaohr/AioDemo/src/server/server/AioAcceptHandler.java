@@ -1,32 +1,41 @@
 package server;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousServerSocketChannel; 
-import java.nio.channels.AsynchronousSocketChannel; 
+import java.nio.channels.AsynchronousServerSocketChannel;
+import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
+import tools.CpuMonitorCalc;
+
+/**
+ * AIOæœåŠ¡ç«¯acceptå›è°ƒæ¥å£ï¼Œè·å¾—cpuçŠ¶æ€ï¼Œè°ƒç”¨writeã€‚
+ * 
+ * @author zhaohr16
+ * @date 2019/07/03
+ */
 public class AioAcceptHandler implements CompletionHandler<AsynchronousSocketChannel, AsynchronousServerSocketChannel> {
-	private static final int BUFFER_SIZE = 1024;
-	
-	@Override
-	public void completed(AsynchronousSocketChannel socket, AsynchronousServerSocketChannel serverSocket) {
-		try {
-			//µİ¹é±£³Ö¼àÌı
-			serverSocket.accept(serverSocket, this);
-			System.out.println("connected from£º "+socket.getRemoteAddress().toString());
-			//¶Á²¢´¦Àí
-			ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
-			buffer.clear();
-			socket.read(buffer, socket, new AioReadHandler(buffer));
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-	}
-	@Override
-	public void failed(Throwable exc, AsynchronousServerSocketChannel attachment) {
-		exc.printStackTrace();
-		
-	}
-	
+
+    @Override
+    public void completed(AsynchronousSocketChannel socket, AsynchronousServerSocketChannel serverSocket) {
+        try {
+            serverSocket.accept(serverSocket, this);
+            System.out.println("connected from " + socket.getRemoteAddress().toString());
+            // double cpuTotal = SigarCpu.getCpuTotal();
+            CpuMonitorCalc.getInstance().getProcessCpu();
+            Thread.sleep(100);
+            double cpu = CpuMonitorCalc.getInstance().getProcessCpu();
+            System.out.println("å½“å‰è¿›ç¨‹cpuå ç”¨ç‡: " + cpu);
+            ByteBuffer buffer = ByteBuffer.wrap(String.valueOf(cpu).getBytes("UTF-8"));
+            socket.write(buffer, socket, new AioWriteHandler(buffer));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void failed(Throwable exc, AsynchronousServerSocketChannel attachment) {
+        exc.printStackTrace();
+
+    }
 
 }
