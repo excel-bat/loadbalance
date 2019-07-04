@@ -16,6 +16,9 @@ import tools.CpuMonitorCalc;
  */
 public class AioAcceptHandler implements CompletionHandler<AsynchronousSocketChannel, AsynchronousServerSocketChannel> {
     private static final int BUFFER_SIZE = 8192;
+    private static final String READ = "r";
+    private static final String WRITE = "w";
+    private static final String LENGTH = "l";
     AioServer server;
 
     public AioAcceptHandler(AioServer server) {
@@ -39,13 +42,13 @@ public class AioAcceptHandler implements CompletionHandler<AsynchronousSocketCha
                     String body;
                     try {
                         body = new String(bytes, "UTF-8");
-                        if (body.contains("l")) {
+                        if (body.contains(LENGTH)) {
                             String row = body.substring(0, 1);
                             int length = Integer.valueOf(body.substring(1, body.indexOf("l")));
-                            if (row.equals("r")) {
+                            if (READ.equals(row)) {
                                 System.out.println("服务器收到读请求");
                                 doWrite(socket, length);
-                            } else if (row.equals("w")) {
+                            } else if (WRITE.equals(row)) {
                                 System.out.println("服务器收到写请求");
                                 doRead(socket, length);
                             } else {

@@ -16,8 +16,12 @@ import java.nio.channels.CompletionHandler;
  */
 public class AioConnectHandler implements CompletionHandler<Void, AsynchronousSocketChannel> {
     private static final int BUFFER_SIZE = 8192;
+    private static final String READ = "r";
+    private static final String WRITE = "w";
+    private static final String LENGTH = "l";
+
     private AioClient client;
-    private String row;// read or write
+    private String row;
     private int length;
     private static final String FILEPATH = "D:\\work\\eclipse-workspace\\test.txt";
 
@@ -48,10 +52,10 @@ public class AioConnectHandler implements CompletionHandler<Void, AsynchronousSo
                 if (buffer.hasRemaining()) {
                     socket.write(buffer, buffer, this);
                 } else {
-                    if (row.equals("r")) {
+                    if (READ.equals(row)) {
                         System.out.println("客户端发送读请求");
                         doRead(socket);
-                    } else if (row.equals("w")) {
+                    } else if (WRITE.equals(row)) {
                         System.out.println("客户端发送写请求");
                         doWrite(socket);
                     } else {
