@@ -9,8 +9,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import tools.WorkThreadPool;
 
@@ -27,10 +25,14 @@ public class AioClient implements Runnable {
     private static class ServerAddress {// 输入
         String ip;
         int port;
+        String row;
+        int length;
 
-        public ServerAddress(String ip, int port) {
+        public ServerAddress(String ip, int port, String row, int length) {
             this.ip = ip;
             this.port = port;
+            this.row = row;
+            this.length = length;
         }
     }
 
@@ -74,8 +76,6 @@ public class AioClient implements Runnable {
     }
 
     synchronized void callBackRead(String msg) {
-        Lock lock = new ReentrantLock();
-        lock.lock();
         try {
             serverInfo.add(new ServerInfo(msg));
             if (serverInfo.size() == serverAddress.size()) {
@@ -83,8 +83,6 @@ public class AioClient implements Runnable {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            lock.unlock();
         }
     }
 
@@ -98,9 +96,9 @@ public class AioClient implements Runnable {
                 socket.setOption(StandardSocketOptions.SO_REUSEADDR, true);
                 socket.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
                 socket.connect(new InetSocketAddress(serverAddress.get(i).ip, serverAddress.get(i).port), socket,
-                    new AioConnectHandler(this));
+                    new AioConnectHandler(this, serverAddress.get(i).row, serverAddress.get(i).length));
             }
-            Thread.sleep(5000);
+            Thread.sleep(20000);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -110,9 +108,10 @@ public class AioClient implements Runnable {
 
     public static void main(String[] args) throws Exception {
         List<ServerAddress> serverAddress = new ArrayList<ServerAddress>();
-        serverAddress.add(new ServerAddress("192.168.52.135", 7007));
-        serverAddress.add(new ServerAddress("192.168.52.136", 8008));
-        serverAddress.add(new ServerAddress("127.0.0.1", 9009));
+        // serverAddress.add(new ServerAddress("192.168.52.135", 7007));
+        // serverAddress.add(new ServerAddress("192.168.52.136", 8008));
+        serverAddress.add(new ServerAddress("127.0.0.1", 8008, "r", 1000));
+        serverAddress.add(new ServerAddress("127.0.0.1", 8008, "w", 1500));
         AioClient client = new AioClient(serverAddress);
         new Thread(client).start();
     }
