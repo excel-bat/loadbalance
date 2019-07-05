@@ -1,7 +1,5 @@
 package client;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -15,33 +13,36 @@ import java.nio.channels.CompletionHandler;
  * @date 2019/07/03
  */
 public class AioConnectHandler implements CompletionHandler<Void, AsynchronousSocketChannel> {
-    private static final int BUFFER_SIZE = 8192;
-    private static final String READ = "r";
-    private static final String WRITE = "w";
-    private static final String LENGTH = "l";
+    private static final int BUFFER_SIZE = 8000;
+    private static final int READ = 0;
+    private static final int WRITE = 1;
 
     private AioClient client;
-    private String row;
+    private int opr;
     private int length;
-    private static final String FILEPATH = "D:\\work\\eclipse-workspace\\test.txt";
 
-    public AioConnectHandler(AioClient client, String row, int length) {
+    public AioConnectHandler(AioClient client, int opr, int length) {
         this.client = client;
-        this.row = row;
+        this.opr = opr;
         this.length = length;
     }
 
     @Override
     public void completed(Void result, AsynchronousSocketChannel socket) {
         // 连接后逻辑
-        // 按格式生成包
+        // 按格式生成包 4-4-7992
         ByteBuffer writeBuffer = null;
         try {
             byte[] bytes = new byte[BUFFER_SIZE];
-            String message = row + String.valueOf(length) + "l";
-            // message = String.format("%-" + BUFFER_SIZE + "s", message).replace(' ', '0');
+            String oprString = String.format("%4s", String.valueOf(opr)).replace(" ", "0");
+            String lengthString = String.format("%4s", String.valueOf(length)).replace(" ", "0");
+            String infoString = null;
+            if (opr == WRITE) {
+                infoString = String.format("%" + String.valueOf(BUFFER_SIZE - 8) + "s", "0").replace(" ", "0");
+            }
+            String message = oprString + lengthString + infoString;
             System.arraycopy(message.getBytes("UTF-8"), 0, bytes, 0, message.length());
-            writeBuffer = ByteBuffer.wrap(message.getBytes("UTF-8"));
+            writeBuffer = ByteBuffer.wrap(bytes);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -52,15 +53,19 @@ public class AioConnectHandler implements CompletionHandler<Void, AsynchronousSo
                 if (buffer.hasRemaining()) {
                     socket.write(buffer, buffer, this);
                 } else {
-                    if (READ.equals(row)) {
-                        System.out.println("客户端发送读请求");
-                        doRead(socket);
-                    } else if (WRITE.equals(row)) {
-                        System.out.println("客户端发送写请求");
-                        doWrite(socket);
-                    } else {
-                        System.out.println("客户端发送标识错误");
-                        // rw标识错误
+                    try {
+                        if (opr == READ) {
+                            System.out.println("客户端发送读请求到：" + socket.getRemoteAddress().toString());
+                            doRead(socket);
+                        } else if (opr == WRITE) {
+                            System.out.println("客户端发送写请求到：" + socket.getRemoteAddress().toString());
+                            doWrite(socket);
+                        } else {
+                            System.out.println("客户端发送标识错误");
+                            // rw标识错误
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -90,10 +95,9 @@ public class AioConnectHandler implements CompletionHandler<Void, AsynchronousSo
                 try {
                     body = new String(bytes, "UTF-8");
                     // cpu统计
-                    System.out.println("客户端接收数据（cpu占用率）：" + body);
-                    client.callBackRead(socket.getRemoteAddress() + ":" + body);
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                    System.out.println("从" + socket.getRemoteAddress().toString() + "读到：" + body);
+                    // 当返回cpu占用率时调用并统计
+                    // client.callBackRead(socket.getRemoteAddress() + ":" + body);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -108,37 +112,6 @@ public class AioConnectHandler implements CompletionHandler<Void, AsynchronousSo
     }
 
     public void doWrite(AsynchronousSocketChannel socket) {
-        try {
-            FileInputStream fis = new FileInputStream(FILEPATH);
-            byte[] bytes = new byte[length];
-            while (fis.read(bytes) != -1) {
-                ByteBuffer writeBuffer = ByteBuffer.wrap(bytes);
-                socket.write(writeBuffer, writeBuffer, new CompletionHandler<Integer, ByteBuffer>() {
-
-                    @Override
-                    public void completed(Integer result, ByteBuffer buffer) {
-                        if (buffer.hasRemaining()) {
-                            socket.write(buffer, buffer, this);
-                        } else {
-                            doReadReply(socket);
-                        }
-                    }
-
-                    @Override
-                    public void failed(Throwable exc, ByteBuffer attachment) {
-                        exc.printStackTrace();
-                    }
-                });
-            }
-            fis.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void doReadReply(AsynchronousSocketChannel socket) {
         ByteBuffer readBuffer = ByteBuffer.allocate(1024);
         socket.read(readBuffer, readBuffer, new CompletionHandler<Integer, ByteBuffer>() {
 
@@ -150,8 +123,8 @@ public class AioConnectHandler implements CompletionHandler<Void, AsynchronousSo
                 String body;
                 try {
                     body = new String(bytes, "UTF-8");
-                    System.out.println("客户端收到服务端反馈：" + body);
-                } catch (UnsupportedEncodingException e) {
+                    System.out.println("到" + socket.getRemoteAddress().toString() + "的写反馈：" + body);
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }

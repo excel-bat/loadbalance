@@ -21,17 +21,19 @@ import tools.WorkThreadPool;
 public class AioClient implements Runnable {
     private static final int MAX_THREAD = 20;
     private AsynchronousChannelGroup asynChannelGroup;
+    private static final int READ = 0;
+    private static final int WRITE = 1;
 
     private static class ServerAddress {// 输入
         String ip;
         int port;
-        String row;
+        int opr;
         int length;
 
-        public ServerAddress(String ip, int port, String row, int length) {
+        public ServerAddress(String ip, int port, int opr, int length) {
             this.ip = ip;
             this.port = port;
-            this.row = row;
+            this.opr = opr;
             this.length = length;
         }
     }
@@ -96,9 +98,9 @@ public class AioClient implements Runnable {
                 socket.setOption(StandardSocketOptions.SO_REUSEADDR, true);
                 socket.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
                 socket.connect(new InetSocketAddress(serverAddress.get(i).ip, serverAddress.get(i).port), socket,
-                    new AioConnectHandler(this, serverAddress.get(i).row, serverAddress.get(i).length));
+                    new AioConnectHandler(this, serverAddress.get(i).opr, serverAddress.get(i).length));
             }
-            Thread.sleep(20000);
+            Thread.sleep(3000);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -108,10 +110,10 @@ public class AioClient implements Runnable {
 
     public static void main(String[] args) throws Exception {
         List<ServerAddress> serverAddress = new ArrayList<ServerAddress>();
-        // serverAddress.add(new ServerAddress("192.168.52.135", 7007));
-        // serverAddress.add(new ServerAddress("192.168.52.136", 8008));
-        serverAddress.add(new ServerAddress("127.0.0.1", 8008, "r", 1000));
-        serverAddress.add(new ServerAddress("127.0.0.1", 8008, "w", 1500));
+        // serverAddress.add(new ServerAddress("192.168.52.135", 7007, READ, 1000));
+        // serverAddress.add(new ServerAddress("192.168.52.136", 8008, READ, 1000));
+        serverAddress.add(new ServerAddress("127.0.0.1", 9009, WRITE, 1000));
+        // serverAddress.add(new ServerAddress("127.0.0.1", 8008, READ, 1200));
         AioClient client = new AioClient(serverAddress);
         new Thread(client).start();
     }

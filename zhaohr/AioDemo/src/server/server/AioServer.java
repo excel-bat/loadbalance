@@ -35,14 +35,13 @@ public class AioServer implements Runnable {
         System.out.println("server start");
         try {
             serverSocket.accept(serverSocket, new AioAcceptHandler(this));
-            // 占用cpu
             while (true) {
-                long bac = 1000000;
-                bac = bac >> 1;
-                /*System.out.println(threadPool.getTaskCount());
-                System.out.println(threadPool.getActiveCount());
-                System.out.println(threadPool.getCompletedTaskCount());
-                System.out.println();*/
+                System.out.println("服务端接收请求数： " + connectCount);
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -52,26 +51,7 @@ public class AioServer implements Runnable {
     }
 
     public static void main(String[] args) throws Exception {
-        AioServer server = new AioServer("127.0.0.1", 8008);
+        AioServer server = new AioServer("127.0.0.1", 9009);
         new Thread(server).start();
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                while (true) {
-                    /*System.out.println(threadPool.getTaskCount());
-                    System.out.println(threadPool.getActiveCount());
-                    System.out.println(threadPool.getCompletedTaskCount());
-                    System.out.println();*/
-                    System.out.println("服务端接收请求数： " + connectCount);
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }).start();
     }
-
 }
