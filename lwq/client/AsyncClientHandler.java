@@ -45,27 +45,34 @@ public class AsyncClientHandler implements CompletionHandler<Void, AsyncClientHa
             e.printStackTrace();  
         }  
     }  
-    //连接服务器成功  
-    //意味着TCP三次握手完成  
+    /**
+     * 连接服务器成功  意味着TCP三次握手完成  
+     */
     @Override  
     public void completed(Void result, AsyncClientHandler attachment) {  
         System.out.println("客户端成功连接到服务器…");  
     }  
-    //连接服务器失败  
+    /**
+     * 连接服务器失败  
+     */
     @Override  
     public void failed(Throwable exc, AsyncClientHandler attachment) {  
         System.err.println("连接服务器失败…");  
         exc.printStackTrace();  
         try {  
             clientChannel.close();  
-            latch.countDown();  
         } catch (IOException e) {  
             e.printStackTrace();  
-        }  
+        } finally {
+        	latch.countDown();
+        }
     }  
-    //向服务器发送消息  
-    public void sendMsg(String msg){  
-        byte[] req = msg.getBytes();  
+    /**
+     * 向服务器发送消息  
+     * @param msg
+     */
+    public void sendMsg(byte[] req){  
+        //byte[] req = msg.getBytes();  
         ByteBuffer writeBuffer = ByteBuffer.allocate(req.length);  
         writeBuffer.put(req);  
         writeBuffer.flip();  

@@ -27,7 +27,7 @@ public class WriteHandler implements CompletionHandler<Integer, ByteBuffer> {
         }  
         else {  
             //读取数据  
-            ByteBuffer readBuffer = ByteBuffer.allocate(1024);  
+            ByteBuffer readBuffer = ByteBuffer.allocate(8000);  
             clientChannel.read(readBuffer,readBuffer,new ReadHandler(clientChannel, latch));  
         }  
     }  
@@ -36,8 +36,9 @@ public class WriteHandler implements CompletionHandler<Integer, ByteBuffer> {
         System.err.println("数据发送失败…");  
         try {  
             clientChannel.close();  
-            latch.countDown();  
         } catch (IOException e) {  
-        }  
+        } finally {
+        	latch.countDown();
+        }
     }  
 }  
