@@ -23,7 +23,7 @@ public class WorkThread extends Thread {
             target.run();
         } finally {
             int c = counter.getAndDecrement();
-            System.out.println("terminate no " + c + " Threads");
+            // System.out.println("terminate no " + c + " Threads");
         }
     }
 }

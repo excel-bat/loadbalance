@@ -13,6 +13,8 @@ import java.nio.channels.CompletionHandler;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import tools.CpuMonitorCalc;
+
 /**
  * AIO服务端accept回调接口，获得cpu状态，调用write。
  * 
@@ -23,6 +25,7 @@ public class AioAcceptHandler implements CompletionHandler<AsynchronousSocketCha
     private static final int BUFFER_SIZE = 8000;
     private static final int READ = 0;
     private static final int WRITE = 1;
+    private static final int QUERY = 2;
     private static final String FILEPATH = "log/";
     AioServer server;
 
@@ -52,11 +55,14 @@ public class AioAcceptHandler implements CompletionHandler<AsynchronousSocketCha
                         // int length = Integer.valueOf(body.substring(4, 8));
                         String infoString = body.substring(8);
                         if (opr == READ) {
-                            System.out.println("服务器收到读请求，来自：" + socket.getRemoteAddress().toString());
+                            // System.out.println("服务器收到读请求，来自：" + socket.getRemoteAddress().toString());
                             doRead(socket, lengthString);
                         } else if (opr == WRITE) {
-                            System.out.println("服务器收到写请求，来自：" + socket.getRemoteAddress().toString());
+                            // System.out.println("服务器收到写请求，来自：" + socket.getRemoteAddress().toString());
                             doWrite(socket, lengthString, infoString);
+                        } else if (opr == QUERY) {
+                            // System.out.println("服务器收到查询请求，来自：" + socket.getRemoteAddress().toString());
+                            doQuery(socket);
                         } else {
 
                         }
@@ -142,7 +148,7 @@ public class AioAcceptHandler implements CompletionHandler<AsynchronousSocketCha
                 }
             }
             String fileName = lengthString + "_" + dateString;
-            // System.out.println(fileName);
+            // // System.out.println(fileName);
             String filePathString = FILEPATH + fileName;
             FileInputStream fis;
             if (new File(filePathString).exists()) {
@@ -173,6 +179,34 @@ public class AioAcceptHandler implements CompletionHandler<AsynchronousSocketCha
             }
         });
 
+    }
+
+    public void doQuery(AsynchronousSocketChannel socket) {
+        ByteBuffer writeBuffer = null;
+        try {
+            CpuMonitorCalc.getInstance().getProcessCpu();
+            Thread.sleep(100);
+            double cpu = CpuMonitorCalc.getInstance().getProcessCpu();
+            writeBuffer = ByteBuffer.wrap(String.valueOf(cpu).getBytes("UTF-8"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        socket.write(writeBuffer, writeBuffer, new CompletionHandler<Integer, ByteBuffer>() {
+
+            @Override
+            public void completed(Integer result, ByteBuffer buffer) {
+                if (buffer.hasRemaining()) {
+                    socket.write(buffer, buffer, this);
+                } else {
+
+                }
+            }
+
+            @Override
+            public void failed(Throwable exc, ByteBuffer attachment) {
+                exc.printStackTrace();
+            }
+        });
     }
 
 }

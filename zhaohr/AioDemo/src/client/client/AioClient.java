@@ -5,11 +5,11 @@ import java.net.StandardSocketOptions;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import data.ServerInfo;
+import strategy.StrategySelector;
 import tools.WorkThreadPool;
 
 /**
@@ -24,46 +24,17 @@ public class AioClient implements Runnable {
     private static final int READ = 0;
     private static final int WRITE = 1;
 
-    private static class ServerAddress {// 输入
-        String ip;
-        int port;
-        int opr;
-        int length;
+    private List<ServerInfo> serverList = new ArrayList<ServerInfo>();
+    private StrategySelector selector;
 
-        public ServerAddress(String ip, int port, int opr, int length) {
-            this.ip = ip;
-            this.port = port;
-            this.opr = opr;
-            this.length = length;
-        }
-    }
-
-    private List<ServerAddress> serverAddress = new ArrayList<ServerAddress>();
-
-    private class ServerInfo {// 输出
-        String info;
-        String ip;
-        int port;
-        double cpu;
-
-        public ServerInfo(String info) {
-            this.info = info;
-            String[] s = info.split(":");
-            this.ip = s[0];
-            this.port = Integer.valueOf(s[1]);
-            this.cpu = Double.valueOf(s[2]);
-        }
-    }
-
-    private List<ServerInfo> serverInfo = new ArrayList<ServerInfo>();
-
-    public AioClient(List<ServerAddress> serverAddress) throws Exception {
+    public AioClient(List<ServerInfo> serverList) throws Exception {
         ThreadPoolExecutor threadPool = WorkThreadPool.newFixedThreadPool(MAX_THREAD);
         asynChannelGroup = AsynchronousChannelGroup.withThreadPool(threadPool);
-        this.serverAddress = serverAddress;
+        this.serverList = serverList;
+        this.selector = new StrategySelector(serverList);
     }
 
-    public void sortAndShowResult() {
+    /*   public void sortAndShowResult() {
         Collections.sort(serverInfo, new Comparator<ServerInfo>() {
             @Override
             public int compare(ServerInfo i1, ServerInfo i2) {
@@ -71,12 +42,12 @@ public class AioClient implements Runnable {
                 return i;
             }
         });
-        System.out.println("排序结果：");
+        // System.out.println("排序结果：");
         for (ServerInfo info : serverInfo) {
-            System.out.println(info.info);
+            // System.out.println(info.info);
         }
     }
-
+    
     synchronized void callBackRead(String msg) {
         try {
             serverInfo.add(new ServerInfo(msg));
@@ -86,35 +57,34 @@ public class AioClient implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     @Override
     public void run() {
         try {
-            System.out.println("client start");
-            for (int i = 0; i < serverAddress.size(); i++) {
+            // System.out.println("client start");
+            while (true) {
+                ServerInfo nextServer = selector.getNextServer();
                 AsynchronousSocketChannel socket = AsynchronousSocketChannel.open(asynChannelGroup);
                 socket.setOption(StandardSocketOptions.TCP_NODELAY, true);
                 socket.setOption(StandardSocketOptions.SO_REUSEADDR, true);
                 socket.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-                socket.connect(new InetSocketAddress(serverAddress.get(i).ip, serverAddress.get(i).port), socket,
-                    new AioConnectHandler(this, serverAddress.get(i).opr, serverAddress.get(i).length));
+                socket.connect(new InetSocketAddress(nextServer.ip, nextServer.port), socket,
+                    new AioConnectHandler(WRITE, 1000));
             }
-            Thread.sleep(3000);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            System.out.println("finally client");
+            // System.out.println("finally client");
         }
     }
 
     public static void main(String[] args) throws Exception {
-        List<ServerAddress> serverAddress = new ArrayList<ServerAddress>();
+        List<ServerInfo> serverList = new ArrayList<ServerInfo>();
         // serverAddress.add(new ServerAddress("192.168.52.135", 7007, READ, 1000));
         // serverAddress.add(new ServerAddress("192.168.52.136", 8008, READ, 1000));
-        serverAddress.add(new ServerAddress("127.0.0.1", 9009, WRITE, 1000));
-        // serverAddress.add(new ServerAddress("127.0.0.1", 8008, READ, 1200));
-        AioClient client = new AioClient(serverAddress);
+        serverList.add(new ServerInfo("127.0.0.1", 9009));
+        AioClient client = new AioClient(serverList);
         new Thread(client).start();
     }
 }
