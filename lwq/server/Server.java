@@ -28,6 +28,25 @@ public class Server {
         counter = new Counter(3);
         new Thread(counter, "Counter").start();
     }  
+    public static void run() {
+    	if(serverHandle != null) {
+    		System.out.println("Server is already running...");
+        	return;
+        }
+    	BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));      
+    	System.out.println("Enter server port:");
+    	int serverPort;
+		String str;
+		try {
+			str = stdin.readLine();
+			serverPort = Integer.parseInt(str);
+		} catch (IOException e) {
+			System.out.println("Setup at port input Error!");
+			serverPort = DEFAULT_PORT;
+		} 
+        System.out.println("Setup at port: " + serverPort);
+        Server.start(serverPort);  
+    }
     public static void main(String[] args){
     	BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));      
     	System.out.println("Enter server port:");

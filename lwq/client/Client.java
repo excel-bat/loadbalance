@@ -3,9 +3,11 @@ package client;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Scanner;  
 
-import client.StringConstructor;  
+import client.StringConstructor;
+import monitor.tool.ServerInfo;  
 
 /**
  * Client class
@@ -47,6 +49,34 @@ public class Client {
         clientHandle[id].sendMsg(msg);  
         return true;  
     }  
+    
+    public void init(ServerInfo sInfo) {
+    	server_amount = sInfo.serverAmount;
+    	server_ip = sInfo.serverIp;
+    	server_port = sInfo.serverPort;
+    	clientHandle = new AsyncClientHandler[server_amount];
+    	for (int id = 0; id < server_amount; id++) {
+        	Client.start(id, server_ip[id], server_port[id]);
+        	System.out.println("Setup at client: " + server_ip[id] + ":" + server_port[id]);
+        }
+    }
+    
+    public void sendReq(int id, int status, int len) throws UnsupportedEncodingException, Exception {
+    	if ((id < 0) || (id >= server_amount)) {
+        	System.out.println("id error");
+        	return;
+        }
+        if ((status != 0) && (status != 1)) {
+        	System.out.println("status error");
+        	return;
+        }
+        if ((len <= 0) || (len > 7992)) {
+        	System.out.println("len error");
+        	return;
+        }
+    	Client.sendMsg(id, StringConstructor.constructor(status, len));
+    }
+    
     @SuppressWarnings("resource")  
     public static void main(String[] args) throws Exception{  
     	BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));     
