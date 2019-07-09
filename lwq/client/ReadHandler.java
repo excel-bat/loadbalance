@@ -5,7 +5,9 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;  
 import java.nio.channels.AsynchronousSocketChannel;  
 import java.nio.channels.CompletionHandler;  
-import java.util.concurrent.CountDownLatch;  
+import java.util.concurrent.CountDownLatch;
+
+import schedule.TestSchedule;  
 
 /**
  * ReadHandler class
@@ -16,9 +18,11 @@ import java.util.concurrent.CountDownLatch;
 public class ReadHandler implements CompletionHandler<Integer, ByteBuffer> {  
     private AsynchronousSocketChannel clientChannel;  
     private CountDownLatch latch;  
-    public ReadHandler(AsynchronousSocketChannel clientChannel,CountDownLatch latch) {  
+    private int id;
+    public ReadHandler(AsynchronousSocketChannel clientChannel,CountDownLatch latch,int id) {  
         this.clientChannel = clientChannel;  
         this.latch = latch;  
+        this.id = id;
     }  
     @Override  
     public void completed(Integer result,ByteBuffer buffer) {  
@@ -34,6 +38,7 @@ public class ReadHandler implements CompletionHandler<Integer, ByteBuffer> {
 			  (bytes[7] & 0xff);
 		String body = ReadResult.show(len, bytes);
 		System.out.println("客户端收到结果:"+ body);  
+		TestSchedule.sInfo.serverStatus[id] = 0;
     }  
     @Override  
     public void failed(Throwable exc,ByteBuffer attachment) {  

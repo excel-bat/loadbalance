@@ -35,14 +35,19 @@ public class ReadHandler implements CompletionHandler<Integer, ByteBuffer> {
             //String expression = new String(message, "UTF-8");
         	int[] req = StringDecoder.decoder(message);
             System.out.println("服务器收到消息: " + req[0] + " " + req[1]);  
+            RunServer.mylog.logServer("服务器收到消息: " + req[0] + " " + req[1]);
             Server.counter.addd();
             
             if (req[0] == 0) {
+            	System.out.println("searching in file");
             	byte[] calrResult = Result.ask(req[1]);
+            	System.out.println("searching done");
                 doWrite(calrResult);  
+                RunServer.mylog.logServer("服务器发送回复");
             } else {
-            	Result.write(req[1], message);
-            	doWrite(Result.getWrit());            	
+            	doWrite(Result.getWrit());       
+            	RunServer.mylog.logServer("服务器发送回复");
+            	Result.write(req[1], message);     	
             }
         } catch (UnsupportedEncodingException e) {  
             e.printStackTrace();  

@@ -42,11 +42,11 @@ public class Client {
      * 向服务器发送消息  
      */
     public static boolean sendMsg(byte[] msg) throws Exception{  
-        clientHandle[0].sendMsg(msg);  
+        clientHandle[0].sendMsg(msg, 0);  
         return true;  
     }  
     public static boolean sendMsg(int id, byte[] msg) throws Exception{  
-        clientHandle[id].sendMsg(msg);  
+        clientHandle[id].sendMsg(msg, id);  
         return true;  
     }  
     

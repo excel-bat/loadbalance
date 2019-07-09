@@ -15,9 +15,11 @@ import java.util.concurrent.CountDownLatch;
 public class WriteHandler implements CompletionHandler<Integer, ByteBuffer> {  
     private AsynchronousSocketChannel clientChannel;  
     private CountDownLatch latch;  
-    public WriteHandler(AsynchronousSocketChannel clientChannel,CountDownLatch latch) {  
+    private int id;
+    public WriteHandler(AsynchronousSocketChannel clientChannel,CountDownLatch latch, int id) {  
         this.clientChannel = clientChannel;  
         this.latch = latch;  
+        this.id = id;
     }  
     @Override  
     public void completed(Integer result, ByteBuffer buffer) {  
@@ -28,7 +30,7 @@ public class WriteHandler implements CompletionHandler<Integer, ByteBuffer> {
         else {  
             //¶ÁÈ¡Êý¾Ý  
             ByteBuffer readBuffer = ByteBuffer.allocate(8000);  
-            clientChannel.read(readBuffer,readBuffer,new ReadHandler(clientChannel, latch));  
+            clientChannel.read(readBuffer,readBuffer,new ReadHandler(clientChannel, latch, id));  
         }  
     }  
     @Override  

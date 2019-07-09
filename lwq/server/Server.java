@@ -25,7 +25,7 @@ public class Server {
         }
         serverHandle = new AsyncServerHandler(port);  
         new Thread(serverHandle,"Server").start();  
-        counter = new Counter(3);
+        counter = new Counter(10);
         new Thread(counter, "Counter").start();
     }  
     public static void run() {
@@ -45,6 +45,7 @@ public class Server {
 			serverPort = DEFAULT_PORT;
 		} 
         System.out.println("Setup at port: " + serverPort);
+        RunServer.mylog.logServer("Setup at port: " + serverPort);
         Server.start(serverPort);  
     }
     public static void main(String[] args){

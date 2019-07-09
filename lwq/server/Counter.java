@@ -22,6 +22,7 @@ public class Counter implements Runnable {
 		while(true) {
 			try {
 				System.out.println("counter = " + counter);
+				RunServer.mylog.logCounter(counter);
 				Thread.sleep(1000 * stime);
 			} catch (InterruptedException e) {
 				e.printStackTrace();

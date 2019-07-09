@@ -12,12 +12,13 @@ import schedule.strategy.Strategy;
 import schedule.strategy.StrategyUtils;
 
 public class TestSchedule {
-	private static ServerInfo sInfo;
+	public static ServerInfo sInfo;
 	private static Strategy strategy;
 	private static Client client;
 	public static void main(String[] args){  	
 		sInfo = new ServerInfo();
-		sInfo.init();
+		//sInfo.init();
+		sInfo.init0();
 		client = new Client();
 		client.init(sInfo);
 		String str = "";
@@ -35,8 +36,8 @@ public class TestSchedule {
 		}
 		while (true) {
 			sInfo.renewCpu();
-			sInfo.showCpu();
 			sInfo.sortCpu();
+			sInfo.showCpu();
 			int victim = strategy.selectServer(sInfo);
 			System.out.println("  Selected server is #" + victim);
 			
@@ -45,23 +46,25 @@ public class TestSchedule {
 	        int status = rand.nextInt(2);
 	        int len = rand.nextInt(7992) + 1;
 			try {
+				System.out.println("  waiting for #" + victim);
+				while (sInfo.serverStatus[victim] == 1) {Thread.sleep(1);};
 				System.out.println("  sending to #" + victim + " status:" + status + " len:" + len);
+				sInfo.serverStatus[victim] = 1;
 				client.sendReq(victim, status, len);
-			} catch (UnsupportedEncodingException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			
+			/*
             System.out.println("Enter to continue:");
+            
 			try {
 				str = stdin.readLine();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} 
+			*/
 		}
 	}
 }

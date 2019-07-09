@@ -71,12 +71,12 @@ public class AsyncClientHandler implements CompletionHandler<Void, AsyncClientHa
      * 向服务器发送消息  
      * @param msg
      */
-    public void sendMsg(byte[] req){  
+    public void sendMsg(byte[] req, int id){  
         //byte[] req = msg.getBytes();  
         ByteBuffer writeBuffer = ByteBuffer.allocate(req.length);  
         writeBuffer.put(req);  
         writeBuffer.flip();  
         //异步写  
-        clientChannel.write(writeBuffer, writeBuffer,new WriteHandler(clientChannel, latch));  
+        clientChannel.write(writeBuffer, writeBuffer,new WriteHandler(clientChannel, latch, id));  
     }  
 }  
