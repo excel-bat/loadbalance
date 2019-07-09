@@ -1,7 +1,6 @@
 package client;
 
 import java.net.InetSocketAddress;
-import java.net.StandardSocketOptions;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.util.ArrayList;
@@ -19,7 +18,7 @@ import tools.WorkThreadPool;
  * @date 2019/07/03
  */
 public class AioClient implements Runnable {
-    private static final int MAX_THREAD = 20;
+    private static final int MAX_THREAD = 1000;
     private AsynchronousChannelGroup asynChannelGroup;
     private static final int READ = 0;
     private static final int WRITE = 1;
@@ -65,12 +64,10 @@ public class AioClient implements Runnable {
             // System.out.println("client start");
             while (true) {
                 ServerInfo nextServer = selector.getNextServer();
+                System.out.println(serverList.indexOf(nextServer));
                 AsynchronousSocketChannel socket = AsynchronousSocketChannel.open(asynChannelGroup);
-                socket.setOption(StandardSocketOptions.TCP_NODELAY, true);
-                socket.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-                socket.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
                 socket.connect(new InetSocketAddress(nextServer.ip, nextServer.port), socket,
-                    new AioConnectHandler(WRITE, 1000));
+                    new AioConnectHandler(READ, 1000));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -81,9 +78,10 @@ public class AioClient implements Runnable {
 
     public static void main(String[] args) throws Exception {
         List<ServerInfo> serverList = new ArrayList<ServerInfo>();
-        // serverAddress.add(new ServerAddress("192.168.52.135", 7007, READ, 1000));
-        // serverAddress.add(new ServerAddress("192.168.52.136", 8008, READ, 1000));
-        serverList.add(new ServerInfo("127.0.0.1", 9009));
+        // serverList.add(new ServerInfo("192.168.52.135", 8000));
+        serverList.add(new ServerInfo("192.168.52.137", 8000));
+        // serverList.add(new ServerInfo("127.0.0.1", 8000));
+
         AioClient client = new AioClient(serverList);
         new Thread(client).start();
     }

@@ -20,6 +20,7 @@ public class AioConnectHandler implements CompletionHandler<Void, AsynchronousSo
     private static final int READ = 0;
     private static final int WRITE = 1;
     private static final int QUERY = 2;
+    private static final int END = 1;
 
     private int opr;
     private int length;
@@ -109,10 +110,9 @@ public class AioConnectHandler implements CompletionHandler<Void, AsynchronousSo
                 String body;
                 try {
                     body = new String(bytes, "UTF-8");
-                    // cpu统计
-                    // System.out.println("从" + socket.getRemoteAddress().toString() + "读到：" + body);
-                    // 当返回cpu占用率时调用并统计
-                    // client.callBackRead(socket.getRemoteAddress() + ":" + body);
+
+                    socket.close();
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -139,6 +139,8 @@ public class AioConnectHandler implements CompletionHandler<Void, AsynchronousSo
                 try {
                     body = new String(bytes, "UTF-8");
                     // System.out.println("到" + socket.getRemoteAddress().toString() + "的写反馈：" + body);
+
+                    socket.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -165,9 +167,17 @@ public class AioConnectHandler implements CompletionHandler<Void, AsynchronousSo
                     body = new String(bytes, "UTF-8");
                     // System.out.println("查询到" + socket.getRemoteAddress().toString() + "的信息：" + body);
                     serverInfo.cpu = Double.valueOf(body);
-                    if (length == 1) {
+                    System.out.println(serverInfo.cpu);
+                    if (length == END) {
                         selector.dataIsReady = true;
                     }
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

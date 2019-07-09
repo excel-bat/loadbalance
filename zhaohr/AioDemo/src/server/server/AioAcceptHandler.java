@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
@@ -13,7 +14,7 @@ import java.nio.channels.CompletionHandler;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import tools.CpuMonitorCalc;
+import com.sun.management.OperatingSystemMXBean;
 
 /**
  * AIO服务端accept回调接口，获得cpu状态，调用write。
@@ -42,8 +43,7 @@ public class AioAcceptHandler implements CompletionHandler<AsynchronousSocketCha
 
                 @Override
                 public void completed(Integer result, ByteBuffer buffer) {
-                    // 连接数+1
-                    server.connectCountAdd();
+                    // server.connectCountAdd();
                     buffer.flip();
                     byte[] bytes = new byte[buffer.remaining()];
                     buffer.get(bytes);
@@ -56,9 +56,13 @@ public class AioAcceptHandler implements CompletionHandler<AsynchronousSocketCha
                         String infoString = body.substring(8);
                         if (opr == READ) {
                             // System.out.println("服务器收到读请求，来自：" + socket.getRemoteAddress().toString());
+                            server.connectCountTotalAdd();
+                            server.connectCountNowAdd();
                             doRead(socket, lengthString);
                         } else if (opr == WRITE) {
                             // System.out.println("服务器收到写请求，来自：" + socket.getRemoteAddress().toString());
+                            server.connectCountTotalAdd();
+                            server.connectCountNowAdd();
                             doWrite(socket, lengthString, infoString);
                         } else if (opr == QUERY) {
                             // System.out.println("服务器收到查询请求，来自：" + socket.getRemoteAddress().toString());
@@ -108,7 +112,9 @@ public class AioAcceptHandler implements CompletionHandler<AsynchronousSocketCha
     public void doWriteBackToClient(AsynchronousSocketChannel socket, String writeString) {
         ByteBuffer writeBuffer = null;
         try {
-            writeBuffer = ByteBuffer.wrap(writeString.getBytes("UTF-8"));
+            byte[] bytes = new byte[1024];
+            System.arraycopy(writeString.getBytes("UTF-8"), 0, bytes, 0, writeString.length());
+            writeBuffer = ByteBuffer.wrap(bytes);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -119,7 +125,14 @@ public class AioAcceptHandler implements CompletionHandler<AsynchronousSocketCha
                 if (buffer.hasRemaining()) {
                     socket.write(buffer, buffer, this);
                 } else {
-
+                    server.connectCountNowSub();
+                    if (socket.isOpen()) {
+                        try {
+                            socket.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
 
@@ -169,7 +182,14 @@ public class AioAcceptHandler implements CompletionHandler<AsynchronousSocketCha
                 if (buffer.hasRemaining()) {
                     socket.write(buffer, buffer, this);
                 } else {
-
+                    server.connectCountNowSub();
+                    if (socket.isOpen()) {
+                        try {
+                            socket.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
 
@@ -184,10 +204,14 @@ public class AioAcceptHandler implements CompletionHandler<AsynchronousSocketCha
     public void doQuery(AsynchronousSocketChannel socket) {
         ByteBuffer writeBuffer = null;
         try {
-            CpuMonitorCalc.getInstance().getProcessCpu();
-            Thread.sleep(100);
-            double cpu = CpuMonitorCalc.getInstance().getProcessCpu();
-            writeBuffer = ByteBuffer.wrap(String.valueOf(cpu).getBytes("UTF-8"));
+            /*CpuMonitorCalc.getInstance().getProcessCpu();
+            double cpu = CpuMonitorCalc.getInstance().getProcessCpu();*/
+            OperatingSystemMXBean osMxBean = (OperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean();
+            double cpu = osMxBean.getSystemCpuLoad();
+            byte[] bytes = new byte[1024];
+            String message = String.valueOf(cpu);
+            System.arraycopy(message.getBytes("UTF-8"), 0, bytes, 0, message.length());
+            writeBuffer = ByteBuffer.wrap(bytes);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -198,7 +222,13 @@ public class AioAcceptHandler implements CompletionHandler<AsynchronousSocketCha
                 if (buffer.hasRemaining()) {
                     socket.write(buffer, buffer, this);
                 } else {
-
+                    if (socket.isOpen()) {
+                        try {
+                            socket.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
 
