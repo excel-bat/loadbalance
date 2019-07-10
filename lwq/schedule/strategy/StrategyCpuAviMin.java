@@ -2,6 +2,13 @@ package schedule.strategy;
 
 import monitor.tool.ServerInfo;
 
+
+/**
+ * StrategyCpuAviMin class
+ * 
+ * @author LiWeiqi
+ * @date 2019/07/09
+ */
 public class StrategyCpuAviMin implements Strategy {
 	private static StrategyCpuAviMin strategyCpuAviMin;
 	private StrategyCpuAviMin() {

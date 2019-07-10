@@ -3,6 +3,12 @@ package client;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
+/**
+ * ReadResult class
+ * 
+ * @author LiWeiqi
+ * @date 2019/07/05
+ */
 public class ReadResult {
 	public static String show(int len, byte[] data) {
 		if (data[3] == 4) {

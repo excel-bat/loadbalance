@@ -4,11 +4,18 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * ServerBioThread class
+ * 
+ * @author LiWeiqi
+ * @date 2019/07/08
+ */
 public class ServerBioThread implements Runnable {
 	public static  ServerSocket server;
 	public ServerBioThread(ServerSocket server) {
         this.server = server;
     }
+	@Override
 	public void run() {
 		try {
 			while(true){

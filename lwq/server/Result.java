@@ -10,6 +10,12 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Result class
+ * 
+ * @author LiWeiqi
+ * @date 2019/07/05
+ */
 public class Result {
 	public static String fileName = "data.txt";
 	public static byte[] ask(int len) {
@@ -51,7 +57,8 @@ public class Result {
                 }  
                 nextend--;  
                 randomFile.seek(nextend);  
-                if (nextend == 0) {// 当文件指针退至文件开始处，输出第一行  
+                if (nextend == 0) {
+                	// 当文件指针退至文件开始处，输出第一行  
                     // System.out.println(rf.readLine());  
                     line = randomFile.readLine();  
                     if (line != null) {  
@@ -77,7 +84,9 @@ public class Result {
         		b[5] = (byte) ((len >> 16) & 0xff);
         		b[6] = (byte) ((len >> 8) & 0xff);
         		b[7] = (byte) (len & 0xff);
-        		for (int i = 0; i < len; i++) b[i + 8] = (byte) 48;
+        		for (int i = 0; i < len; i++) { 
+        			b[i + 8] = (byte) 48;
+        		}
             	
             } else {
             	System.out.println("not find");
