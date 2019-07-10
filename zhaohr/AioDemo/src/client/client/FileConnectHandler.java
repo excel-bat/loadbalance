@@ -6,42 +6,24 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
-import data.ServerInfo;
-import strategy.StrategySelector;
-
 /**
- * AIO客户端connect回调接口，连接后调用read。
- * 
  * @author zhaohr16
- * @date 2019/07/03
+ * @date 2019/07/10
  */
-public class AioConnectHandler implements CompletionHandler<Void, AsynchronousSocketChannel> {
+public class FileConnectHandler implements CompletionHandler<Void, AsynchronousSocketChannel> {
     private static final int BUFFER_SIZE = 8000;
     private static final int READ = 0;
     private static final int WRITE = 1;
-    private static final int QUERY = 2;
-    private static final int END = 1;
-
     private int opr;
     private int length;
-    private ServerInfo serverInfo;
-    private StrategySelector selector;
 
-    public AioConnectHandler(int opr, int length) {
-
-        this.opr = opr;
-        this.length = length;
-    }
-
-    public AioConnectHandler(StrategySelector selector, ServerInfo serverInfo, int opr, int length) {
-        this.selector = selector;
-        this.serverInfo = serverInfo;
+    public FileConnectHandler(int opr, int length) {
         this.opr = opr;
         this.length = length;
     }
 
     @Override
-    public void completed(Void result, AsynchronousSocketChannel socket) {
+    public void completed(Void result, AsynchronousSocketChannel socketChannel) {
         // 连接后逻辑
         // 按格式生成包 4-4-7992
         ByteBuffer writeBuffer = null;
@@ -59,23 +41,20 @@ public class AioConnectHandler implements CompletionHandler<Void, AsynchronousSo
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        socket.write(writeBuffer, writeBuffer, new CompletionHandler<Integer, ByteBuffer>() {
+        socketChannel.write(writeBuffer, writeBuffer, new CompletionHandler<Integer, ByteBuffer>() {
 
             @Override
             public void completed(Integer result, ByteBuffer buffer) {
                 if (buffer.hasRemaining()) {
-                    socket.write(buffer, buffer, this);
+                    socketChannel.write(buffer, buffer, this);
                 } else {
                     try {
                         if (opr == READ) {
-                            // System.out.println("客户端发送读请求到：" + socket.getRemoteAddress().toString());
-                            doRead(socket);
+                            // System.out.println("客户端发送读请求到：" + socketChannel.getRemoteAddress().toString());
+                            doRead(socketChannel);
                         } else if (opr == WRITE) {
-                            // System.out.println("客户端发送写请求到：" + socket.getRemoteAddress().toString());
-                            doWrite(socket);
-                        } else if (opr == QUERY) {
-                            // System.out.println("客户端发送查询请求到：" + socket.getRemoteAddress().toString());
-                            doQuery(socket);
+                            // System.out.println("客户端发送写请求到：" + socketChannel.getRemoteAddress().toString());
+                            doWrite(socketChannel);
                         } else {
                             // System.out.println("客户端发送标识错误");
                             // rw标识错误
@@ -91,16 +70,18 @@ public class AioConnectHandler implements CompletionHandler<Void, AsynchronousSo
                 exc.printStackTrace();
             }
         });
+
     }
 
     @Override
     public void failed(Throwable exc, AsynchronousSocketChannel attachment) {
         exc.printStackTrace();
+
     }
 
-    public void doRead(AsynchronousSocketChannel socket) {
+    public void doRead(AsynchronousSocketChannel socketChannel) {
         ByteBuffer readBuffer = ByteBuffer.allocate(length);
-        socket.read(readBuffer, readBuffer, new CompletionHandler<Integer, ByteBuffer>() {
+        socketChannel.read(readBuffer, readBuffer, new CompletionHandler<Integer, ByteBuffer>() {
 
             @Override
             public void completed(Integer result, ByteBuffer buffer) {
@@ -110,8 +91,7 @@ public class AioConnectHandler implements CompletionHandler<Void, AsynchronousSo
                 String body;
                 try {
                     body = new String(bytes, "UTF-8");
-
-                    socket.close();
+                    socketChannel.close();
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -126,9 +106,9 @@ public class AioConnectHandler implements CompletionHandler<Void, AsynchronousSo
 
     }
 
-    public void doWrite(AsynchronousSocketChannel socket) {
+    public void doWrite(AsynchronousSocketChannel socketChannel) {
         ByteBuffer readBuffer = ByteBuffer.allocate(1024);
-        socket.read(readBuffer, readBuffer, new CompletionHandler<Integer, ByteBuffer>() {
+        socketChannel.read(readBuffer, readBuffer, new CompletionHandler<Integer, ByteBuffer>() {
 
             @Override
             public void completed(Integer result, ByteBuffer buffer) {
@@ -138,46 +118,9 @@ public class AioConnectHandler implements CompletionHandler<Void, AsynchronousSo
                 String body;
                 try {
                     body = new String(bytes, "UTF-8");
-                    // System.out.println("到" + socket.getRemoteAddress().toString() + "的写反馈：" + body);
+                    // System.out.println("到" + socketChannel.getRemoteAddress().toString() + "的写反馈：" + body);
 
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void failed(Throwable exc, ByteBuffer attachment) {
-                exc.printStackTrace();
-            }
-        });
-    }
-
-    public void doQuery(AsynchronousSocketChannel socket) {
-        ByteBuffer readBuffer = ByteBuffer.allocate(1024);
-        socket.read(readBuffer, readBuffer, new CompletionHandler<Integer, ByteBuffer>() {
-
-            @Override
-            public void completed(Integer result, ByteBuffer buffer) {
-                buffer.flip();
-                byte[] bytes = new byte[buffer.remaining()];
-                buffer.get(bytes);
-                String body;
-                try {
-                    body = new String(bytes, "UTF-8");
-                    // System.out.println("查询到" + socket.getRemoteAddress().toString() + "的信息：" + body);
-                    serverInfo.cpu = Double.valueOf(body);
-                    System.out.println(serverInfo.cpu);
-                    if (length == END) {
-                        selector.dataIsReady = true;
-                    }
-                    try {
-                        socket.close();
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-
+                    socketChannel.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

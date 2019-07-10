@@ -13,7 +13,8 @@ public class RandomStrategy implements Strategy {
     int i;
 
     @Override
-    public ServerInfo getNextServer(List<ServerInfo> serverList) {
+    public ServerInfo getNextServer() {
+        List<ServerInfo> serverList = ServerInfo.serverList;
         Random random = new Random();
         i = random.nextInt(serverList.size());
         return serverList.get(i);

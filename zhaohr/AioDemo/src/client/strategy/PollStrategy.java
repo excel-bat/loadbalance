@@ -13,7 +13,8 @@ public class PollStrategy implements Strategy {
     private int i = -1;
 
     @Override
-    public ServerInfo getNextServer(List<ServerInfo> serverList) {
+    public ServerInfo getNextServer() {
+        List<ServerInfo> serverList = ServerInfo.serverList;
         if (i == serverList.size() - 1) {
             i = 0;
         } else {

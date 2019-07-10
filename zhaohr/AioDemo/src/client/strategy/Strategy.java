@@ -1,7 +1,5 @@
 package strategy;
 
-import java.util.List;
-
 import data.ServerInfo;
 
 /**
@@ -10,6 +8,6 @@ import data.ServerInfo;
  */
 public interface Strategy {
 
-    ServerInfo getNextServer(List<ServerInfo> serverList);
+    ServerInfo getNextServer();
 
 }
