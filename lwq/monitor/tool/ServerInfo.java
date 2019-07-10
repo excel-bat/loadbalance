@@ -6,6 +6,12 @@ import java.io.InputStreamReader;
 
 import monitor.bio.ClientBio;
 
+/**
+ * ServerInfo class
+ * 
+ * @author LiWeiqi
+ * @date 2019/07/05
+ */
 public class ServerInfo {
 	public int serverAmount;
 	public String[] serverIp;
@@ -14,6 +20,17 @@ public class ServerInfo {
     public double[] serverCpuRate;
     public int[] serverIndex;
     public int[] serverStatus;
+    public int[] coreNum;
+    
+    void makeSpace() {
+        serverIp = new String[serverAmount];
+        serverPort = new int[serverAmount];
+        monitorPort = new int[serverAmount];
+        serverCpuRate = new double[serverAmount];
+        serverIndex = new int[serverAmount];
+        serverStatus = new int[serverAmount];
+        coreNum = new int[serverAmount];
+    }
     
     public void init() {
     	try {
@@ -21,13 +38,8 @@ public class ServerInfo {
             String str;
             System.out.println("Enter server amount:");
             str = stdin.readLine(); 
-            serverAmount = Integer.parseInt(str);            
-            serverIp = new String[serverAmount];
-            serverPort = new int[serverAmount];
-            monitorPort = new int[serverAmount];
-            serverCpuRate = new double[serverAmount];
-            serverIndex = new int[serverAmount];
-            serverStatus = new int[serverAmount];
+            serverAmount = Integer.parseInt(str);  
+            makeSpace();
             for (int id = 0; id < serverAmount; id++) {
             	serverStatus[id] = 0;
                 System.out.printf("Enter #%d server IP:\n", id);
@@ -47,13 +59,8 @@ public class ServerInfo {
     }
     public void init0() {
             serverAmount = 3;            
-            serverIp = new String[serverAmount];
-            serverPort = new int[serverAmount];
-            monitorPort = new int[serverAmount];
-            serverCpuRate = new double[serverAmount];
-            serverIndex = new int[serverAmount];
-            serverStatus = new int[serverAmount];
-            
+            makeSpace();
+
             serverIp[0] = "127.0.0.1";
             serverIp[1] = "192.168.210.129";
             serverIp[2] = "192.168.210.128";
@@ -83,7 +90,7 @@ public class ServerInfo {
     }
     public void renewCpu() {
     	for (int id = 0; id < serverAmount; id++) {
-    		serverCpuRate[id] = ClientBio.send(serverIp[id], monitorPort[id], "getCPU");
+    		serverCpuRate[id] = ClientBio.sendCpuRate(serverIp[id], monitorPort[id], "getCPU");
         }
     }
     public void showCpu() {
@@ -91,5 +98,10 @@ public class ServerInfo {
             System.out.printf("#%d cpu rate: %f; ", serverIndex[id], serverCpuRate[serverIndex[id]]);
         }
     	System.out.println();
+    }
+    public void getCore() {
+    	for (int id = 0; id < serverAmount; id++) {
+    		coreNum[id] = ClientBio.sendCoreNum(serverIp[id], monitorPort[id], "getCoreNum");
+    	}
     }
 }

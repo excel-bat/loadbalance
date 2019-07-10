@@ -2,6 +2,12 @@ package schedule.strategy;
 
 import monitor.tool.ServerInfo;
 
+/**
+ * StrategyPoll class
+ * 
+ * @author LiWeiqi
+ * @date 2019/07/09
+ */
 public class StrategyPoll implements Strategy {
 	public int po = 0;
 	private static StrategyPoll strategyPoll;

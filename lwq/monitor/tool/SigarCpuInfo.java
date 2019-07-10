@@ -45,5 +45,9 @@ public class SigarCpuInfo {
         }
         System.out.println(sum / infos.length);
     }
-
+    public int getCoreNum() throws SigarException {
+    	Sigar sigar = new Sigar();
+        CpuInfo[] infos = sigar.getCpuInfoList();
+        return (infos.length);
+    }
 }

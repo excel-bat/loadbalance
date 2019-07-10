@@ -43,7 +43,7 @@ public class ClientBio {
         while (true) {
             System.out.println("------------------------");
             for (int id = 0; id < server_amount; id++) {
-                server_cpu_rate[id] = send(server_ip[id], server_port[id], "getCPU");
+                server_cpu_rate[id] = sendCpuRate(server_ip[id], server_port[id], "getCPU");
             }
             for (int id = 0; id < server_amount; id++) {
                 sorted_index[id] = id;
@@ -68,7 +68,7 @@ public class ClientBio {
             }
         }
     }
-    public static double send(String sip, int port,String expression){  
+    public static double sendCpuRate(String sip, int port,String expression){  
         //System.out.println("  getCPU of " + port);  
         Socket socket = null;  
         BufferedReader in = null;  
@@ -108,5 +108,43 @@ public class ClientBio {
             }  
         } 
         return rate;
+    }  
+    public static int sendCoreNum(String sip, int port,String expression){  
+        //System.out.println("  getCPU of " + port);  
+        Socket socket = null;  
+        BufferedReader in = null;  
+        PrintWriter out = null;  
+        int core = 1;
+        try{  
+            socket = new Socket(sip,port);  
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));  
+            out = new PrintWriter(socket.getOutputStream(),true);  
+            out.println(expression);  
+            core = Integer.parseInt(in.readLine());
+        }catch(Exception e){  
+            System.out.println("  getCoreNum of " + port + " failed "); 
+        }finally{  
+            if(in != null){  
+                try {  
+                    in.close();  
+                } catch (IOException e) {  
+                    e.printStackTrace();  
+                }  
+                in = null;  
+            }  
+            if(out != null){  
+                out.close();  
+                out = null;  
+            }  
+            if(socket != null){  
+                try {  
+                    socket.close();  
+                } catch (IOException e) {  
+                    e.printStackTrace();  
+                }  
+                socket = null;  
+            }  
+        } 
+        return core;
     }  
 }  

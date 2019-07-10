@@ -2,6 +2,12 @@ package server;
 
 import org.apache.log4j.Logger;
 
+/**
+ * LogMaker class
+ * 
+ * @author LiWeiqi
+ * @date 2019/07/09
+ */
 public class LogMaker {
 	private Logger log;
 	private Logger logCounter;

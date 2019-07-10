@@ -11,6 +11,12 @@ import monitor.tool.ServerInfo;
 import schedule.strategy.Strategy;
 import schedule.strategy.StrategyUtils;
 
+/**
+ * TestSchedule class
+ * 
+ * @author LiWeiqi
+ * @date 2019/07/08
+ */
 public class TestSchedule {
 	public static ServerInfo sInfo;
 	private static Strategy strategy;
@@ -21,6 +27,12 @@ public class TestSchedule {
 		sInfo.init0();
 		client = new Client();
 		client.init(sInfo);
+		
+		sInfo.getCore();
+		for (int i = 0; i < sInfo.serverAmount; i++) {
+			System.out.println("" + i + "# has " + sInfo.coreNum[i] + " core");
+		}
+		
 		String str = "";
 		BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
 		System.out.println("Enter Strategy:");
@@ -34,6 +46,7 @@ public class TestSchedule {
 			System.out.println("Strategy name error");
 			return;
 		}
+				
 		while (true) {
 			sInfo.renewCpu();
 			sInfo.sortCpu();

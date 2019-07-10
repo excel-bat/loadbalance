@@ -33,9 +33,12 @@ public class ServerHandler implements Runnable{
                 	break;
                 }
                 System.out.println("Received: " + expression);
-                //if (expression == "getCPU") {
+                if ("getCPU".equals(expression)) {
                 	out.println(sigarcpu.getCpu());                	
-                //}
+                }
+                if ("getCoreNum".equals(expression)) {
+                	out.println(sigarcpu.getCoreNum());                	
+                }
             }
         }catch(Exception e){
             e.printStackTrace();
