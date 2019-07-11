@@ -7,10 +7,10 @@ import data.ServerInfo;
  * @date 2019/07/08
  */
 public class StrategySelector {
-    Strategy strategy;
+    public Strategy strategy;
 
     public StrategySelector() {
-        strategy = new RandomStrategy();
+        strategy = new MinCpuStrategy();
     }
 
     public ServerInfo getNextServer() {

@@ -6,6 +6,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
+import data.ServerInfo;
+
 /**
  * @author zhaohr16
  * @date 2019/07/10
@@ -16,8 +18,10 @@ public class FileConnectHandler implements CompletionHandler<Void, AsynchronousS
     private static final int WRITE = 1;
     private int opr;
     private int length;
+    private ServerInfo serverInfo;
 
-    public FileConnectHandler(int opr, int length) {
+    public FileConnectHandler(ServerInfo serverInfo, int opr, int length) {
+        this.serverInfo = serverInfo;
         this.opr = opr;
         this.length = length;
     }
@@ -75,8 +79,10 @@ public class FileConnectHandler implements CompletionHandler<Void, AsynchronousS
 
     @Override
     public void failed(Throwable exc, AsynchronousSocketChannel attachment) {
-        exc.printStackTrace();
 
+        // WeightRoundRobinStrategy
+        serverInfo.effectiveWeight--;
+        exc.printStackTrace();
     }
 
     public void doRead(AsynchronousSocketChannel socketChannel) {

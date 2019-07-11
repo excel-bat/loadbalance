@@ -16,6 +16,7 @@ public class StrategyInfo implements Runnable {
     private static double cpu;
     private static int connectCountTotal;
     private static boolean isWindows;
+    private static int connectCountActive;
 
     public StrategyInfo() {
         sigarInfo = new SigarInfo();
@@ -44,6 +45,14 @@ public class StrategyInfo implements Runnable {
 
     public static synchronized void addConnectCountTotal() {
         StrategyInfo.connectCountTotal++;
+    }
+
+    public static synchronized int getConnectCountActive() {
+        return connectCountActive;
+    }
+
+    public static synchronized void setConnectCountActive(int connectCountActive) {
+        StrategyInfo.connectCountActive = connectCountActive;
     }
 
     @Override

@@ -8,7 +8,7 @@ import data.ServerInfo;
  * @author zhaohr16
  * @date 2019/07/08
  */
-public class PollStrategy implements Strategy {
+public class RoundRobinStrategy implements Strategy {
 
     private int i = -1;
 

@@ -39,6 +39,10 @@ public class FileServer implements Runnable {
             e.printStackTrace();
         }
 
+        while (true) {
+            StrategyInfo.setConnectCountActive(executor.getActiveCount());
+        }
+
     }
 
 }

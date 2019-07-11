@@ -31,7 +31,9 @@ public class StrategyInfoConnectHandler implements CompletionHandler<Void, Async
                     buffer.get(bytes);
                     String body;
                     body = new String(bytes, "UTF-8");
-                    serverInfo.setCpu(Double.valueOf(body));
+                    String[] info = body.split(":");
+                    serverInfo.setCpu(Double.valueOf(info[0]));
+                    serverInfo.setConnectCountActive(Integer.valueOf(info[1]));
                     socketChannel.close();
                 } catch (IOException e) {
                     e.printStackTrace();

@@ -24,7 +24,8 @@ public class StrategyInfoAcceptHandler
         ByteBuffer writeBuffer = null;
         try {
             byte[] bytes = new byte[1024];
-            String message = String.valueOf(StrategyInfo.getCpu());
+            String message = String.valueOf(StrategyInfo.getCpu()) + ":"
+                + String.valueOf(StrategyInfo.getConnectCountActive()) + ":";
             System.arraycopy(message.getBytes("UTF-8"), 0, bytes, 0, message.length());;
             writeBuffer = ByteBuffer.wrap(bytes);
         } catch (UnsupportedEncodingException e) {

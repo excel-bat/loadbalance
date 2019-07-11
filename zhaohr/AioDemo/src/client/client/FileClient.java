@@ -21,7 +21,7 @@ public class FileClient implements Runnable {
     private StrategySelector selector;
 
     public FileClient() throws IOException {
-        executor = WorkThreadPool.newFixedThreadPool(ServerInfo.serverList.size());
+        executor = WorkThreadPool.newFixedThreadPool(100);
         channelGroup = AsynchronousChannelGroup.withThreadPool(executor);
         selector = new StrategySelector();
     }
@@ -31,16 +31,17 @@ public class FileClient implements Runnable {
         while (true) {
             try {
                 ServerInfo nextServer = selector.getNextServer();
-                System.out.println(ServerInfo.serverList.indexOf(nextServer));
+                // System.out.println(ServerInfo.serverList.indexOf(nextServer));
                 AsynchronousSocketChannel socketChannel = AsynchronousSocketChannel.open(channelGroup);
                 socketChannel.connect(new InetSocketAddress(nextServer.ip, nextServer.filePort), socketChannel,
-                    new FileConnectHandler(0, 1000));
+                    new FileConnectHandler(nextServer, 0, 7000));
+
                 // windows
-                try {
-                    Thread.sleep(1);
+                /*try {
+                    Thread.sleep(10);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }
+                }*/
             } catch (IOException e) {
                 e.printStackTrace();
             }
