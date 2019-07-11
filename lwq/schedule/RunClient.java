@@ -1,9 +1,5 @@
 package schedule;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
 import client.Client;
@@ -12,41 +8,34 @@ import schedule.strategy.Strategy;
 import schedule.strategy.StrategyUtils;
 
 /**
- * TestSchedule class
+ * RunClient class
  * 
  * @author LiWeiqi
  * @date 2019/07/08
  */
-public class TestSchedule {
-	public static ServerInfo sInfo;
-	private static Strategy strategy;
-	private static Client client;
-	public static void main(String[] args){  	
+public class RunClient implements Runnable {
+	public ServerInfo sInfo;
+	public Strategy strategy;
+	public Client client;
+	public int threadId;
+	
+	public RunClient(String stra,int id) {
 		sInfo = new ServerInfo();
 		//sInfo.init();
 		sInfo.init0();
 		client = new Client();
 		client.init(sInfo);
-		
 		sInfo.getCore();
-		for (int i = 0; i < sInfo.serverAmount; i++) {
-			System.out.println("" + i + "# has " + sInfo.coreNum[i] + " core");
-		}
-		
-		String str = "";
-		BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
-		System.out.println("Enter Strategy:");
-		try {
-			str = stdin.readLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
-		strategy = StrategyUtils.getStrategy(str);
+		strategy = StrategyUtils.getStrategy(stra);
 		if (strategy == null) {
 			System.out.println("Strategy name error");
 			return;
 		}
-				
+		threadId = id;
+	}
+	
+	@Override
+	public void run() {
 		while (true) {
 			sInfo.renewCpu();
 			sInfo.sortCpu();
@@ -63,7 +52,7 @@ public class TestSchedule {
 				while (sInfo.serverStatus[victim] == 1) {Thread.sleep(1);};
 				System.out.println("  sending to #" + victim + " status:" + status + " len:" + len);
 				sInfo.serverStatus[victim] = 1;
-				client.sendReq(victim, status, len,sInfo);
+				client.sendReq(victim, status, len, sInfo);
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

@@ -5,7 +5,9 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;  
 import java.nio.channels.AsynchronousSocketChannel;  
 import java.nio.channels.CompletionHandler;  
-import java.util.concurrent.CountDownLatch;  
+import java.util.concurrent.CountDownLatch;
+
+import monitor.tool.ServerInfo;  
 
 /**
  * AsyncClientHandler class
@@ -71,12 +73,12 @@ public class AsyncClientHandler implements CompletionHandler<Void, AsyncClientHa
      * 向服务器发送消息  
      * @param msg
      */
-    public void sendMsg(byte[] req, int id){  
+    public void sendMsg(byte[] req, int id, ServerInfo sInfo){  
         //byte[] req = msg.getBytes();  
         ByteBuffer writeBuffer = ByteBuffer.allocate(req.length);  
         writeBuffer.put(req);  
         writeBuffer.flip();  
         //异步写  
-        clientChannel.write(writeBuffer, writeBuffer,new WriteHandler(clientChannel, latch, id));  
+        clientChannel.write(writeBuffer, writeBuffer,new WriteHandler(clientChannel, latch, id, sInfo));  
     }  
 }  

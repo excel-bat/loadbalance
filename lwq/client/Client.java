@@ -18,11 +18,16 @@ import monitor.tool.ServerInfo;
 public class Client {  
     private static String DEFAULT_HOST = "127.0.0.1";  
     private static int DEFAULT_PORT = 12345;  
-    private static AsyncClientHandler[] clientHandle;
+    private AsyncClientHandler[] clientHandle;
     private static int server_amount = 1;  
     private static String[] server_ip;
     private static int[] server_port;
-    public static void start(){  
+    
+    public Client() {
+    	
+    }
+    
+    public void start(){  
     	server_ip = new String[server_amount];
     	server_ip[0] = DEFAULT_HOST;
         server_port = new int[server_amount];
@@ -30,7 +35,7 @@ public class Client {
         clientHandle = new AsyncClientHandler[server_amount];
         start(0, DEFAULT_HOST,DEFAULT_PORT);  
     }  
-    public static synchronized void start(int id, String ip,int port){  
+    public synchronized void start(int id, String ip,int port){  
         if(clientHandle[id]!=null) {
             return;  
         }
@@ -41,12 +46,14 @@ public class Client {
     /**
      * 向服务器发送消息  
      */
+    /*
     public static boolean sendMsg(byte[] msg) throws Exception{  
         clientHandle[0].sendMsg(msg, 0);  
         return true;  
-    }  
-    public static boolean sendMsg(int id, byte[] msg) throws Exception{  
-        clientHandle[id].sendMsg(msg, id);  
+    }
+    */
+    public boolean sendMsg(int id, byte[] msg, ServerInfo sInfo) throws Exception{  
+        clientHandle[id].sendMsg(msg, id, sInfo);  
         return true;  
     }  
     
@@ -56,12 +63,12 @@ public class Client {
     	server_port = sInfo.serverPort;
     	clientHandle = new AsyncClientHandler[server_amount];
     	for (int id = 0; id < server_amount; id++) {
-        	Client.start(id, server_ip[id], server_port[id]);
+        	start(id, server_ip[id], server_port[id]);
         	System.out.println("Setup at client: " + server_ip[id] + ":" + server_port[id]);
         }
     }
     
-    public void sendReq(int id, int status, int len) throws UnsupportedEncodingException, Exception {
+    public void sendReq(int id, int status, int len, ServerInfo sInfo) throws UnsupportedEncodingException, Exception {
     	if ((id < 0) || (id >= server_amount)) {
         	System.out.println("id error");
         	return;
@@ -74,11 +81,11 @@ public class Client {
         	System.out.println("len error");
         	return;
         }
-    	Client.sendMsg(id, StringConstructor.constructor(status, len));
+    	sendMsg(id, StringConstructor.constructor(status, len), sInfo);
     }
     
     @SuppressWarnings("resource")  
-    public static void main(String[] args) throws Exception{  
+    public void main(String[] args) throws Exception{  
     	BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));     
         String str;
         System.out.println("Enter server amount:");
@@ -100,7 +107,7 @@ public class Client {
         }
         
         for (int id = 0; id < server_amount; id++) {
-        	Client.start(id, server_ip[id], server_port[id]);
+        	//Client.start(id, server_ip[id], server_port[id]);
         	System.out.println("Setup at client: " + server_ip[id] + ":" + server_port[id]);
         }
         
@@ -131,7 +138,7 @@ public class Client {
             	System.out.println("len error");
             	continue;
             }
-        	Client.sendMsg(id, StringConstructor.constructor(status, len));
+        	//Client.sendMsg(id, StringConstructor.constructor(status, len));
         }
     }  
 }  
