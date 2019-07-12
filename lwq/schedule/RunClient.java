@@ -50,6 +50,7 @@ public class RunClient implements Runnable {
 			try {
 				System.out.println("  waiting for #" + victim);
 				while (sInfo.serverStatus[victim] == 1) {Thread.sleep(1);};
+				sInfo.startTime[victim] = System.currentTimeMillis();
 				System.out.println("  sending to #" + victim + " status:" + status + " len:" + len);
 				sInfo.serverStatus[victim] = 1;
 				client.sendReq(victim, status, len, sInfo);

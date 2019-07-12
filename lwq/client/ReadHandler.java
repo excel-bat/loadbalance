@@ -42,6 +42,8 @@ public class ReadHandler implements CompletionHandler<Integer, ByteBuffer> {
 		String body = ReadResult.show(len, bytes);
 		System.out.println("客户端收到结果:"+ body);  
 		sInfo.serverStatus[id] = 0;
+		sInfo.endTime[id] = System.currentTimeMillis();
+		sInfo.useTime[id] = sInfo.endTime[id] - sInfo.startTime[id];
     }  
     @Override  
     public void failed(Throwable exc,ByteBuffer attachment) {  

@@ -21,6 +21,12 @@ public class ServerInfo {
     public int[] serverIndex;
     public int[] serverStatus;
     public int[] coreNum;
+    public long[] startTime;
+    public long[] endTime;
+    public long[] useTime;
+    public long[] lastTime;
+    public double[] rxbps;
+    public double[] txbps;
     
     void makeSpace() {
         serverIp = new String[serverAmount];
@@ -30,6 +36,12 @@ public class ServerInfo {
         serverIndex = new int[serverAmount];
         serverStatus = new int[serverAmount];
         coreNum = new int[serverAmount];
+        startTime = new long[serverAmount];
+        endTime = new long[serverAmount];
+        useTime = new long[serverAmount];
+        lastTime = new long[serverAmount];
+        rxbps = new double[serverAmount];
+        txbps = new double[serverAmount];
     }
     
     public void init() {

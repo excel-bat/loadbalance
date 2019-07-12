@@ -2,6 +2,7 @@ package monitor.tool;
 
 import org.hyperic.sigar.CpuInfo;
 import org.hyperic.sigar.CpuPerc;
+import org.hyperic.sigar.NetInterfaceStat;
 import org.hyperic.sigar.Sigar;
 import org.hyperic.sigar.SigarException;
 
@@ -49,5 +50,24 @@ public class SigarCpuInfo {
     	Sigar sigar = new Sigar();
         CpuInfo[] infos = sigar.getCpuInfoList();
         return (infos.length);
+    }
+    public double[] getBps() throws SigarException, InterruptedException {
+    	double[] ret = new double[2];
+    	Sigar sigar = new Sigar();
+    	String name = "ens33";
+    	long start = System.currentTimeMillis();  
+        NetInterfaceStat statStart = sigar.getNetInterfaceStat(name);  
+        long rxBytesStart = statStart.getRxBytes();  
+        long txBytesStart = statStart.getTxBytes();  
+        Thread.sleep(1000);  
+        long end = System.currentTimeMillis();  
+        NetInterfaceStat statEnd = sigar.getNetInterfaceStat(name);  
+        long rxBytesEnd = statEnd.getRxBytes();  
+        long txBytesEnd = statEnd.getTxBytes();  
+          
+        ret[0] = (rxBytesEnd - rxBytesStart)*8/(end-start)*1000;  
+        ret[1] = (txBytesEnd - txBytesStart)*8/(end-start)*1000;    
+
+    	return ret;
     }
 }
