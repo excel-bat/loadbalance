@@ -74,8 +74,8 @@ public class ServerInfo {
             makeSpace();
 
             serverIp[0] = "127.0.0.1";
-            serverIp[1] = "192.168.210.129";
-            serverIp[2] = "192.168.210.128";
+            serverIp[1] = "192.168.210.130";
+            serverIp[2] = "192.168.210.131";
             serverPort[0] = 3000;
             serverPort[1] = 3001;
             serverPort[2] = 3002;

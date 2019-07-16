@@ -54,7 +54,8 @@ public class SigarCpuInfo {
     public double[] getBps() throws SigarException, InterruptedException {
     	double[] ret = new double[2];
     	Sigar sigar = new Sigar();
-    	String name = "ens33";
+    	String name = "ens35";
+    	
     	long start = System.currentTimeMillis();  
         NetInterfaceStat statStart = sigar.getNetInterfaceStat(name);  
         long rxBytesStart = statStart.getRxBytes();  

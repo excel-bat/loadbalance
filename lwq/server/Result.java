@@ -1,6 +1,7 @@
 package server;
 
 import java.io.IOException;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -17,9 +18,13 @@ import java.util.List;
  * @date 2019/07/05
  */
 public class Result {
-	public static String fileName = "data.txt";
+	//public static String fileName = "data.txt";
 	public static byte[] ask(int len) {
 		byte[] b = null;
+		String fileName = System.getProperty("user.dir") + File.separator + "data";
+		File file = new File(fileName);
+		file.mkdirs();
+		fileName = fileName + File.separator + len + ".txt";
 		try {
 			RandomAccessFile randomFile = new RandomAccessFile(fileName, "rw");
 			boolean find = false;
@@ -103,6 +108,8 @@ public class Result {
 	}
 	public static void write(int len, byte[] data) {
 		try {
+			System.out.println(System.getProperty("user.dir"));
+			
 			Date currentTime = new Date(); 
 	        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss"); 
 	        String s8 = formatter.format(currentTime);
@@ -110,7 +117,13 @@ public class Result {
 			byte[] b = new byte[len];
 			Arrays.fill(b, (byte) (48));
 			String info = new String(b,"UTF-8");
-			String content = "" + len + "," + s8 + "," + info + "\n"; 
+			String content = "" + len + "," + s8 + "," + info + "\n";
+			
+			String fileName = System.getProperty("user.dir") + File.separator + "data";
+			File file = new File(fileName);
+			file.mkdirs();
+			fileName = fileName + File.separator + len + ".txt";
+			
 			RandomAccessFile randomFile = new RandomAccessFile(fileName, "rw");
 			long fileLength = randomFile.length();
 			randomFile.seek(fileLength);
