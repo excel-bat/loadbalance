@@ -79,6 +79,16 @@ public class AsyncClientHandler implements CompletionHandler<Void, AsyncClientHa
         writeBuffer.put(req);  
         writeBuffer.flip();  
         //�첽д  
-        clientChannel.write(writeBuffer, writeBuffer,new WriteHandler(clientChannel, latch, id, sInfo));  
+        boolean flag = true;
+        while (flag) {
+        	try {
+        		clientChannel.write(writeBuffer, writeBuffer,new WriteHandler(clientChannel, latch, id, sInfo));
+        	}catch (Exception e1) {
+        		// TODO Auto-generated catch block
+        		//System.out.println("fail");
+        		continue;
+        	}
+        	flag = false;
+        }
     }  
 }  

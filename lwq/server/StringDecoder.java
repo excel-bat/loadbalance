@@ -13,6 +13,9 @@ public class StringDecoder {
 		int status = 0;
 		int len = 0;
 		
+		if (b.length == 0) {
+			return new int[] {0, 0};
+		}
 		status = (b[3] & 0xff);
 		
 		len = (b[4] & 0xff) << 24 | 

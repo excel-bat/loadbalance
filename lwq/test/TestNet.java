@@ -1,5 +1,7 @@
 package test;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.util.ArrayList;  
     import java.util.List;  
       
@@ -82,8 +84,12 @@ import java.util.ArrayList;
             String[] netIfs = sigar.getNetInterfaceList();  
             List netIfList = new ArrayList();  
             for ( String name:netIfs ) {  
+            	
             	TestNet netIfData1 = TestNet.gather(sigar, name);  
                 netIfList.add(netIfData1);  
+                
+                NetworkInterface ni = NetworkInterface.getByName(name);
+                System.out.println(name + " " + ni + " rxbps: " + netIfData1.rxbps + " txbps: " + netIfData1.txbps);
             } 
             
             

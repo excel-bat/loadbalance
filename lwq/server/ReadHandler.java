@@ -34,6 +34,9 @@ public class ReadHandler implements CompletionHandler<Integer, ByteBuffer> {
         try {  
             //String expression = new String(message, "UTF-8");
         	int[] req = StringDecoder.decoder(message);
+        	if ((req[1] == 0) && (req[0] == 0)) {
+        		return;
+        	}
             System.out.println("服务器收到消息: " + req[0] + " " + req[1]);  
             RunServer.mylog.logServer("服务器收到消息: " + req[0] + " " + req[1]);
             Server.counter.addd();

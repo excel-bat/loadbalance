@@ -44,6 +44,12 @@ public class ReadHandler implements CompletionHandler<Integer, ByteBuffer> {
 		sInfo.serverStatus[id] = 0;
 		sInfo.endTime[id] = System.currentTimeMillis();
 		sInfo.useTime[id] = sInfo.endTime[id] - sInfo.startTime[id];
+		try {
+			clientChannel.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }  
     @Override  
     public void failed(Throwable exc,ByteBuffer attachment) {  

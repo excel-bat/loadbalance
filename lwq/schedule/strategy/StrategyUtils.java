@@ -13,8 +13,8 @@ public class StrategyUtils {
 			System.out.println("Using strategy: random");
 			instance = (Strategy) StrategyRandom.getInstance();			
 		}
-		if ("poll".equals(type)) {
-			System.out.println("Using strategy: poll");
+		if ("rr".equals(type)) {
+			System.out.println("Using strategy: rr");
 			instance = (Strategy) StrategyPoll.getInstance();			
 		}
 		if ("cpumin".equals(type)) {
