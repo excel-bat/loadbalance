@@ -18,7 +18,7 @@ public class StrategyInfoClient implements Runnable {
     private AsynchronousChannelGroup channelGroup;
 
     public StrategyInfoClient() throws IOException {
-        executor = WorkThreadPool.newFixedThreadPool(ServerInfo.serverList.size());
+        executor = WorkThreadPool.newFixedThreadPool(10);
         channelGroup = AsynchronousChannelGroup.withThreadPool(executor);
     }
 
@@ -27,11 +27,12 @@ public class StrategyInfoClient implements Runnable {
         while (true) {
             try {
                 for (ServerInfo serverInfo : ServerInfo.serverList) {
+                    serverInfo.startTime = System.nanoTime();
                     AsynchronousSocketChannel socketChannel = AsynchronousSocketChannel.open(channelGroup);
                     socketChannel.connect(new InetSocketAddress(serverInfo.ip, serverInfo.infoPort), socketChannel,
                         new StrategyInfoConnectHandler(serverInfo));
                 }
-                Thread.sleep(1);
+                Thread.sleep(500);
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {

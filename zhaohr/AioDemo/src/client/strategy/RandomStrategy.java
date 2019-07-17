@@ -11,11 +11,11 @@ import data.ServerInfo;
  */
 public class RandomStrategy implements Strategy {
     int i;
+    Random random = new Random();
 
     @Override
     public ServerInfo getNextServer() {
         List<ServerInfo> serverList = ServerInfo.serverList;
-        Random random = new Random();
         i = random.nextInt(serverList.size());
         return serverList.get(i);
     }

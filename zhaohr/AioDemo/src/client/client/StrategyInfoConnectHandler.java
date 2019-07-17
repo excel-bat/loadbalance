@@ -13,9 +13,15 @@ import data.ServerInfo;
  */
 public class StrategyInfoConnectHandler implements CompletionHandler<Void, AsynchronousSocketChannel> {
     private ServerInfo serverInfo;
+    private int i = 0;
 
     public StrategyInfoConnectHandler(ServerInfo serverInfo) {
         this.serverInfo = serverInfo;
+    }
+
+    public StrategyInfoConnectHandler(ServerInfo serverInfo, int i) {
+        this.serverInfo = serverInfo;
+        this.i = i;
     }
 
     @Override
@@ -34,6 +40,9 @@ public class StrategyInfoConnectHandler implements CompletionHandler<Void, Async
                     String[] info = body.split(":");
                     serverInfo.setCpu(Double.valueOf(info[0]));
                     serverInfo.setConnectCountActive(Integer.valueOf(info[1]));
+                    serverInfo.endTime = System.nanoTime();
+                    serverInfo.unitTime = serverInfo.endTime - serverInfo.startTime;
+                    // System.out.println(serverInfo.unitTime);
                     socketChannel.close();
                 } catch (IOException e) {
                     e.printStackTrace();

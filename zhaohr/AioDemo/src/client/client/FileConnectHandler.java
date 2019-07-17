@@ -71,7 +71,7 @@ public class FileConnectHandler implements CompletionHandler<Void, AsynchronousS
 
             @Override
             public void failed(Throwable exc, ByteBuffer attachment) {
-                exc.printStackTrace();
+                // exc.printStackTrace();
             }
         });
 
@@ -82,7 +82,7 @@ public class FileConnectHandler implements CompletionHandler<Void, AsynchronousS
 
         // WeightRoundRobinStrategy
         serverInfo.effectiveWeight--;
-        exc.printStackTrace();
+        // exc.printStackTrace();
     }
 
     public void doRead(AsynchronousSocketChannel socketChannel) {
@@ -97,6 +97,7 @@ public class FileConnectHandler implements CompletionHandler<Void, AsynchronousS
                 String body;
                 try {
                     body = new String(bytes, "UTF-8");
+                    serverInfo.connectCountFinish++;
                     socketChannel.close();
 
                 } catch (IOException e) {
@@ -106,7 +107,7 @@ public class FileConnectHandler implements CompletionHandler<Void, AsynchronousS
 
             @Override
             public void failed(Throwable exc, ByteBuffer attachment) {
-                exc.printStackTrace();
+                // exc.printStackTrace();
             }
         });
 
@@ -125,7 +126,7 @@ public class FileConnectHandler implements CompletionHandler<Void, AsynchronousS
                 try {
                     body = new String(bytes, "UTF-8");
                     // System.out.println("到" + socketChannel.getRemoteAddress().toString() + "的写反馈：" + body);
-
+                    serverInfo.connectCountFinish++;
                     socketChannel.close();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -134,7 +135,7 @@ public class FileConnectHandler implements CompletionHandler<Void, AsynchronousS
 
             @Override
             public void failed(Throwable exc, ByteBuffer attachment) {
-                exc.printStackTrace();
+                // exc.printStackTrace();
             }
         });
     }

@@ -17,14 +17,14 @@ public class MinConnectActiveStrategy implements Strategy {
         int minConnect = 100;
         for (ServerInfo serverInfo : serverList) {
             int connect = serverInfo.getConnectCountActive();
-            System.out.print(String.valueOf(connect) + " ");
+            // System.out.print(String.valueOf(connect) + " ");
             if (connect < minConnect) {
                 minConnect = connect;
                 result = serverInfo;
             }
         }
-        System.out.print(serverList.indexOf(result));
-        System.out.println();
+        // System.out.print(serverList.indexOf(result));
+        // System.out.println();
         return result;
     }
 

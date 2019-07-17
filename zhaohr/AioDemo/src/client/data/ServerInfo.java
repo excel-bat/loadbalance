@@ -17,6 +17,12 @@ public class ServerInfo {
     public int weight;
     public int effectiveWeight;
     public int currentWeight;
+    public long startTime = 0;
+    public long endTime = 0;
+    public long unitTime = 1;
+    public int connectCount = 0;
+    public static int connectCountTotal = 0;
+    public static int connectCountFinish = 0;
     public static List<ServerInfo> serverList = new ArrayList<ServerInfo>();
 
     public ServerInfo(String ip, int filePort, int infoPort) {
@@ -38,10 +44,10 @@ public class ServerInfo {
     }
 
     public static void setServerList() {
-        serverList.add(new ServerInfo("10.2.0.211", 8000, 8001));
-        // serverList.add(new ServerInfo("127.0.0.1", 8000, 8001));
+        // serverList.add(new ServerInfo("10.2.0.211", 8000, 8001));
+        serverList.add(new ServerInfo("127.0.0.1", 8000, 8001));
         serverList.add(new ServerInfo("10.2.0.102", 8000, 8001));
-        serverList.add(new ServerInfo("10.2.0.103", 8000, 8001));
+        // serverList.add(new ServerInfo("10.2.0.103", 8000, 8001));
         // serverList.add(new ServerInfo("10.2.0.101", 8000, 8001));
 
     }

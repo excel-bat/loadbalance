@@ -18,8 +18,15 @@ public class Client {
             ExecutorService executor = WorkThreadPool.newFixedThreadPool(2);
             executor.execute(new StrategyInfoClient());
             executor.execute(new FileClient());
+            int i = 0;
             while (true) {
-                Thread.sleep(10000);
+                System.out.print(i);
+                for (ServerInfo serverInfo : ServerInfo.serverList) {
+                    System.out.print("  +++" + serverInfo.connectCount + "         ");
+                }
+                System.out.println();
+                Thread.sleep(5000);
+                i++;
             }
         } catch (IOException e) {
             e.printStackTrace();

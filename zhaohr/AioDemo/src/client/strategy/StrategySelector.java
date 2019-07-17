@@ -14,7 +14,10 @@ public class StrategySelector {
     }
 
     public ServerInfo getNextServer() {
-        return strategy.getNextServer();
+        ServerInfo result = strategy.getNextServer();
+        result.connectCount++;
+        ServerInfo.connectCountTotal++;
+        return result;
     }
 
 }

@@ -106,6 +106,12 @@ public class FileAcceptHandler
                 if (buffer.hasRemaining()) {
                     socketChannel.write(buffer, buffer, this);
                 } else {
+                    try {
+                        socketChannel.close();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                 }
             }
 

@@ -10,6 +10,7 @@ import data.ServerInfo;
  * @date 2019/07/11
  */
 public class WeightRandomStrategy implements Strategy {
+    Random random = new Random();
 
     @Override
     public ServerInfo getNextServer() {
@@ -19,7 +20,6 @@ public class WeightRandomStrategy implements Strategy {
             totalWeight += serverInfo.weight;
         }
 
-        Random random = new Random();
         int i = random.nextInt(totalWeight);
         int weight = 0;
         ServerInfo result = null;

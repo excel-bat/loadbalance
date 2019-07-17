@@ -19,7 +19,7 @@ public class StrategyInfoServer implements Runnable {
     private AsynchronousChannelGroup channelGroup;
 
     public StrategyInfoServer(String ip, int port) throws IOException {
-        executor = WorkThreadPool.newSingleThreadPool();
+        executor = WorkThreadPool.newFixedThreadPool(10);
         channelGroup = AsynchronousChannelGroup.withThreadPool(executor);
         this.ip = ip;
         this.port = port;
