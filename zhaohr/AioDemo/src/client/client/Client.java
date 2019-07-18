@@ -20,13 +20,7 @@ public class Client {
             executor.execute(new FileClient());
             int i = 0;
             while (true) {
-                System.out.print(i);
-                for (ServerInfo serverInfo : ServerInfo.serverList) {
-                    System.out.print("  +++" + serverInfo.connectCount + "         ");
-                }
-                System.out.println();
                 Thread.sleep(5000);
-                i++;
             }
         } catch (IOException e) {
             e.printStackTrace();

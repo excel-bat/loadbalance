@@ -5,7 +5,7 @@ import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.util.Random;
+import java.text.DecimalFormat;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import data.ServerInfo;
@@ -28,34 +28,114 @@ public class FileClient implements Runnable {
         selector = new StrategySelector();
     }
 
+    private static double getPossionProbability(int k, double lamda) {
+        double c = Math.exp(-lamda), sum = 1;
+        for (int i = 1; i <= k; i++) {
+            sum *= lamda / i;
+        }
+        return sum * c;
+    }
+
+    private static int getPossionVariable(double lamda) {
+        int x = 0;
+        double y = Math.random(), cdf = getPossionProbability(x, lamda);
+        while (cdf < y) {
+            x++;
+            cdf += getPossionProbability(x, lamda);
+        }
+        return x;
+    }
+
     @Override
     public void run() {
-        Random random = new Random();
+        int i = 0;
+        int countTotal = 0;
+        long time = System.currentTimeMillis();
+
         while (true) {
+            int count = 60 * getPossionVariable(50);
+            if (i > 50) {
+                count = 0;
+            }
+            int countPrint = count;
+
+            System.out.println(System.currentTimeMillis() - time);
+            System.out.println(i + "  " + countPrint);
+            System.out.println(ServerInfo.connectFinishedTotal + "/" + ServerInfo.connectSendTotal + "/" + countTotal
+                + " " + new DecimalFormat("0.000%").format((double)ServerInfo.connectSendTotal / countTotal));
+            for (ServerInfo serverInfo : ServerInfo.serverList) {
+                serverInfo.connectClientWrongRate =
+                    (double)serverInfo.connectFailed / (serverInfo.connectFailed + serverInfo.connectFinished);
+                System.out
+                    .println(serverInfo.connectSend + " " + serverInfo.connectFinished + " " + serverInfo.connectFailed
+                        + " " + new DecimalFormat("0.000%").format(serverInfo.connectClientWrongRate) + " "
+                        + new DecimalFormat("0.000%").format(serverInfo.connectServerWrongRate));
+            }
+            System.out.println(ServerInfo.connectSendTotal + " " + ServerInfo.connectFinishedTotal + " "
+                + ServerInfo.connectFailedTotal);
+            System.out.println();
+
+            time = System.currentTimeMillis();
+            countTotal += count;
+            count++;
+            i++;
+            while (System.currentTimeMillis() - time < (i == 1 ? 5000 : 1000)) {
+                if (count-- > 0) {
+                    try {
+                        if (ServerInfo.connectSendTotal - ServerInfo.connectFinishedTotal
+                            - ServerInfo.connectFailedTotal < 1000) {
+                            ServerInfo nextServer = selector.getNextServer();
+                            nextServer.connectSend++;
+                            ServerInfo.connectSendTotal++;
+                            // System.out.println(ServerInfo.serverList.indexOf(nextServer));
+                            AsynchronousSocketChannel socketChannel = AsynchronousSocketChannel.open(channelGroup);
+                            socketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+                            socketChannel.connect(new InetSocketAddress(nextServer.ip, nextServer.filePort),
+                                socketChannel, new FileConnectHandler(nextServer, 0, 6999));
+                        } else {
+                            try {
+                                Thread.sleep(10);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    } catch (IOException e) {
+
+                    }
+                } else {
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+        }
+
+        /* while (true) {
             try {
-                if (ServerInfo.connectCountTotal - ServerInfo.connectCountFinish < 500) {
+                if (ServerInfo.connectSendTotal - ServerInfo.connectFinishedTotal
+                    - ServerInfo.connectFailedTotal < 1000) {
                     ServerInfo nextServer = selector.getNextServer();
+                    nextServer.connectSend++;
+                    ServerInfo.connectSendTotal++;
                     // System.out.println(ServerInfo.serverList.indexOf(nextServer));
                     AsynchronousSocketChannel socketChannel = AsynchronousSocketChannel.open(channelGroup);
                     socketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-                    /*socketChannel.connect(new InetSocketAddress(nextServer.ip, nextServer.filePort), socketChannel,
-                        new FileConnectHandler(nextServer, random.nextInt(2), random.nextInt(7000)));*/
                     socketChannel.connect(new InetSocketAddress(nextServer.ip, nextServer.filePort), socketChannel,
                         new FileConnectHandler(nextServer, 0, 6999));
                 } else {
-                    // System.out.println("crowd");
                     try {
                         Thread.sleep(10);
                     } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 }
             } catch (IOException e) {
-                // e.printStackTrace();
+        
             }
-
-        }
+        }*/
     }
 
 }

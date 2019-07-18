@@ -14,7 +14,7 @@ public class MinConnectActiveStrategy implements Strategy {
     public ServerInfo getNextServer() {
         List<ServerInfo> serverList = ServerInfo.serverList;
         ServerInfo result = null;
-        int minConnect = 100;
+        int minConnect = 100000;
         for (ServerInfo serverInfo : serverList) {
             int connect = serverInfo.getConnectCountActive();
             // System.out.print(String.valueOf(connect) + " ");

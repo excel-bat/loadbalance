@@ -13,7 +13,7 @@ import tools.WorkThreadPool;
  */
 public class Server {
 
-    private static final String IP = "127.0.0.1";
+    private static final String IP = "10.2.0.211";
     private static final int INFOPORT = 8001;
     private static final int FILEPORT = 8000;
     private static Logger logger = Logger.getLogger(Server.class);
@@ -27,6 +27,8 @@ public class Server {
             while (true) {
                 logger
                     .info("服务端接收请求数： " + StrategyInfo.getConnectCountTotal() + "  当前cpu占用率： " + StrategyInfo.getCpu());
+                logger.info(StrategyInfo.connectAccepted + " " + StrategyInfo.connectFinished + " "
+                    + StrategyInfo.connectFailed + " ");
                 Thread.sleep(3000);
             }
         } catch (IOException e) {

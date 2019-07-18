@@ -29,6 +29,7 @@ public class FileAcceptHandler
     public void completed(AsynchronousSocketChannel socketChannel,
         AsynchronousServerSocketChannel serverSocketChannel) {
         serverSocketChannel.accept(serverSocketChannel, this);
+        StrategyInfo.connectAccepted++;
         ByteBuffer readBuffer = ByteBuffer.allocate(BUFFER_SIZE);
         socketChannel.read(readBuffer, readBuffer, new CompletionHandler<Integer, ByteBuffer>() {
 
@@ -62,6 +63,7 @@ public class FileAcceptHandler
 
             @Override
             public void failed(Throwable exc, ByteBuffer attachment) {
+                StrategyInfo.connectFailed++;
                 exc.printStackTrace();
             }
         });
@@ -70,6 +72,7 @@ public class FileAcceptHandler
 
     @Override
     public void failed(Throwable exc, AsynchronousServerSocketChannel attachment) {
+        StrategyInfo.connectFailed++;
         exc.printStackTrace();
     }
 
@@ -107,6 +110,7 @@ public class FileAcceptHandler
                     socketChannel.write(buffer, buffer, this);
                 } else {
                     try {
+                        StrategyInfo.connectFinished++;
                         socketChannel.close();
                     } catch (IOException e) {
                         // TODO Auto-generated catch block
@@ -117,6 +121,7 @@ public class FileAcceptHandler
 
             @Override
             public void failed(Throwable exc, ByteBuffer attachment) {
+                StrategyInfo.connectFailed++;
                 exc.printStackTrace();
             }
         });
@@ -162,6 +167,7 @@ public class FileAcceptHandler
                     socketChannel.write(buffer, buffer, this);
                 } else {
                     try {
+                        StrategyInfo.connectFinished++;
                         socketChannel.close();
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -172,6 +178,7 @@ public class FileAcceptHandler
 
             @Override
             public void failed(Throwable exc, ByteBuffer attachment) {
+                StrategyInfo.connectFailed++;
                 exc.printStackTrace();
             }
         });

@@ -4,6 +4,8 @@ import java.lang.management.ManagementFactory;
 import java.util.Properties;
 
 import org.hyperic.sigar.CpuPerc;
+import org.hyperic.sigar.FileSystemUsage;
+import org.hyperic.sigar.NetInterfaceStat;
 import org.hyperic.sigar.Sigar;
 import org.hyperic.sigar.SigarException;
 
@@ -21,6 +23,9 @@ public class StrategyInfo implements Runnable {
     private static boolean isWindows;
     private static int connectCountTotal;
     private static int connectCountActive;
+    public static int connectAccepted = 0;
+    public static int connectFinished = 0;
+    public static int connectFailed = 0;
 
     public StrategyInfo() {
         sigarInfo = new SigarInfo();

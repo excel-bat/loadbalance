@@ -10,14 +10,11 @@ public class StrategySelector {
     public Strategy strategy;
 
     public StrategySelector() {
-        strategy = new MinCpuStrategy();
+        strategy = new RandomStrategy();
     }
 
     public ServerInfo getNextServer() {
-        ServerInfo result = strategy.getNextServer();
-        result.connectCount++;
-        ServerInfo.connectCountTotal++;
-        return result;
+        return strategy.getNextServer();
     }
 
 }

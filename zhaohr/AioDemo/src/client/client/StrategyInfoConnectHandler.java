@@ -40,6 +40,7 @@ public class StrategyInfoConnectHandler implements CompletionHandler<Void, Async
                     String[] info = body.split(":");
                     serverInfo.setCpu(Double.valueOf(info[0]));
                     serverInfo.setConnectCountActive(Integer.valueOf(info[1]));
+                    serverInfo.connectServerWrongRate = Double.valueOf(info[2]);
                     serverInfo.endTime = System.nanoTime();
                     serverInfo.unitTime = serverInfo.endTime - serverInfo.startTime;
                     // System.out.println(serverInfo.unitTime);
