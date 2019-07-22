@@ -13,7 +13,7 @@ import tools.WorkThreadPool;
  */
 public class Server {
 
-    private static final String IP = "10.2.0.211";
+    private static final String IP = "10.2.0.101";
     private static final int INFOPORT = 8001;
     private static final int FILEPORT = 8000;
     private static Logger logger = Logger.getLogger(Server.class);

@@ -6,6 +6,7 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
 import data.ServerInfo;
+import strategy.InfoStrategy;
 
 /**
  * @author zhaohr16
@@ -39,12 +40,18 @@ public class StrategyInfoConnectHandler implements CompletionHandler<Void, Async
                     body = new String(bytes, "UTF-8");
                     String[] info = body.split(":");
                     serverInfo.setCpu(Double.valueOf(info[0]));
-                    serverInfo.setConnectCountActive(Integer.valueOf(info[1]));
-                    serverInfo.connectServerWrongRate = Double.valueOf(info[2]);
+                    serverInfo.setMemory(Double.valueOf(info[1]));
+                    serverInfo.setRxBytes(Long.valueOf(info[2]));
+                    serverInfo.setDev(Double.valueOf(info[3]));
+                    serverInfo.setConnectCountActive(Integer.valueOf(info[4]));
+                    serverInfo.connectServerWrongRate = Double.valueOf(info[5]);
                     serverInfo.endTime = System.nanoTime();
-                    serverInfo.unitTime = serverInfo.endTime - serverInfo.startTime;
+                    serverInfo.setUnitTime(serverInfo.endTime - serverInfo.startTime);
                     // System.out.println(serverInfo.unitTime);
                     socketChannel.close();
+                    if (ServerInfo.serverList.indexOf(serverInfo) == ServerInfo.serverList.size() - 1) {
+                        InfoStrategy.getWeight();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

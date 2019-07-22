@@ -10,7 +10,7 @@ public class StrategySelector {
     public Strategy strategy;
 
     public StrategySelector() {
-        strategy = new RandomStrategy();
+        strategy = new InfoStrategy();
     }
 
     public ServerInfo getNextServer() {

@@ -24,12 +24,12 @@ public class StrategyInfoAcceptHandler
         ByteBuffer writeBuffer = null;
         try {
             byte[] bytes = new byte[1024];
-            int connectCurrent =
-                StrategyInfo.connectAccepted - StrategyInfo.connectFinished - StrategyInfo.connectFailed;
             double wrongRate =
                 (double)StrategyInfo.connectFailed / (StrategyInfo.connectFailed + StrategyInfo.connectFinished);
-            String message = String.valueOf(StrategyInfo.getCpu()) + ":" + String.valueOf(connectCurrent) + ":"
-                + String.valueOf(wrongRate) + ":";
+            // cpu mem rxbytes dev connect wrong
+            String message = String.valueOf(StrategyInfo.getCpu()) + ":" + String.valueOf(StrategyInfo.getMemory())
+                + ":" + String.valueOf(StrategyInfo.getRxBytes()) + ":" + String.valueOf(StrategyInfo.getDev()) + ":"
+                + String.valueOf(StrategyInfo.getConnectCountActive()) + ":" + String.valueOf(wrongRate);
             System.arraycopy(message.getBytes("UTF-8"), 0, bytes, 0, message.length());;
             writeBuffer = ByteBuffer.wrap(bytes);
         } catch (UnsupportedEncodingException e) {

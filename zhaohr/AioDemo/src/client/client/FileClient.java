@@ -54,39 +54,39 @@ public class FileClient implements Runnable {
 
         while (true) {
             int count = 60 * getPossionVariable(50);
-            if (i > 50) {
+            if (i > 300) {
                 count = 0;
             }
             int countPrint = count;
 
             System.out.println(System.currentTimeMillis() - time);
             System.out.println(i + "  " + countPrint);
-            System.out.println(ServerInfo.connectFinishedTotal + "/" + ServerInfo.connectSendTotal + "/" + countTotal
-                + " " + new DecimalFormat("0.000%").format((double)ServerInfo.connectSendTotal / countTotal));
+            System.out.println(
+                ServerInfo.getConnectFinishedTotal() + "/" + ServerInfo.getConnectSendTotal() + "/" + countTotal + " "
+                    + new DecimalFormat("0.000%").format((double)ServerInfo.getConnectSendTotal() / countTotal));
             for (ServerInfo serverInfo : ServerInfo.serverList) {
-                serverInfo.connectClientWrongRate =
-                    (double)serverInfo.connectFailed / (serverInfo.connectFailed + serverInfo.connectFinished);
-                System.out
-                    .println(serverInfo.connectSend + " " + serverInfo.connectFinished + " " + serverInfo.connectFailed
-                        + " " + new DecimalFormat("0.000%").format(serverInfo.connectClientWrongRate) + " "
-                        + new DecimalFormat("0.000%").format(serverInfo.connectServerWrongRate));
+                serverInfo.connectClientWrongRate = (double)serverInfo.getConnectFailed()
+                    / (serverInfo.getConnectFailed() + serverInfo.getConnectFinished());
+                System.out.println(serverInfo.getConnectSend() + " " + serverInfo.getConnectFinished() + " "
+                    + serverInfo.getConnectFailed() + " "
+                    + new DecimalFormat("0.000%").format(serverInfo.connectClientWrongRate) + " "
+                    + new DecimalFormat("0.000%").format(serverInfo.connectServerWrongRate));
             }
-            System.out.println(ServerInfo.connectSendTotal + " " + ServerInfo.connectFinishedTotal + " "
-                + ServerInfo.connectFailedTotal);
+            System.out.println(ServerInfo.getConnectSendTotal() + " " + ServerInfo.getConnectFinishedTotal() + " "
+                + ServerInfo.getConnectFailedTotal());
             System.out.println();
 
             time = System.currentTimeMillis();
             countTotal += count;
             count++;
             i++;
-            while (System.currentTimeMillis() - time < (i == 1 ? 5000 : 1000)) {
+            while (System.currentTimeMillis() - time < 1000) {
                 if (count-- > 0) {
                     try {
-                        if (ServerInfo.connectSendTotal - ServerInfo.connectFinishedTotal
-                            - ServerInfo.connectFailedTotal < 1000) {
+                        if (ServerInfo.getConnectSendTotal() - ServerInfo.getConnectFinishedTotal()
+                            - ServerInfo.getConnectFailedTotal() < 1000) {
                             ServerInfo nextServer = selector.getNextServer();
-                            nextServer.connectSend++;
-                            ServerInfo.connectSendTotal++;
+                            nextServer.addConnectSend();
                             // System.out.println(ServerInfo.serverList.indexOf(nextServer));
                             AsynchronousSocketChannel socketChannel = AsynchronousSocketChannel.open(channelGroup);
                             socketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
@@ -104,7 +104,7 @@ public class FileClient implements Runnable {
                     }
                 } else {
                     try {
-                        Thread.sleep(1);
+                        Thread.sleep(10);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

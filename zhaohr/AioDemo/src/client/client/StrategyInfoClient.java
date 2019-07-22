@@ -32,7 +32,7 @@ public class StrategyInfoClient implements Runnable {
                     socketChannel.connect(new InetSocketAddress(serverInfo.ip, serverInfo.infoPort), socketChannel,
                         new StrategyInfoConnectHandler(serverInfo));
                 }
-                Thread.sleep(500);
+                Thread.sleep(ServerInfo.INTERVAL);
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {

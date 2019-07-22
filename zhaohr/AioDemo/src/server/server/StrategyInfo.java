@@ -4,7 +4,9 @@ import java.lang.management.ManagementFactory;
 import java.util.Properties;
 
 import org.hyperic.sigar.CpuPerc;
+import org.hyperic.sigar.FileSystem;
 import org.hyperic.sigar.FileSystemUsage;
+import org.hyperic.sigar.Mem;
 import org.hyperic.sigar.NetInterfaceStat;
 import org.hyperic.sigar.Sigar;
 import org.hyperic.sigar.SigarException;
@@ -19,7 +21,10 @@ import tools.SigarInfo;
  */
 public class StrategyInfo implements Runnable {
     private SigarInfo sigarInfo;
-    private static double cpu;
+    private static double cpu = 0;
+    private static double memory = 0;
+    private static long rxBytes = 0;// 流量总数，需要取段处理
+    private static double dev = 0;
     private static boolean isWindows;
     private static int connectCountTotal;
     private static int connectCountActive;
@@ -53,6 +58,30 @@ public class StrategyInfo implements Runnable {
         StrategyInfo.cpu = cpu;
     }
 
+    public static synchronized double getMemory() {
+        return memory;
+    }
+
+    private static synchronized void setMemory(double memory) {
+        StrategyInfo.memory = memory;
+    }
+
+    public static synchronized long getRxBytes() {
+        return rxBytes;
+    }
+
+    private static synchronized void setRxBytes(long rxBytes) {
+        StrategyInfo.rxBytes = rxBytes;
+    }
+
+    public static synchronized double getDev() {
+        return dev;
+    }
+
+    private static synchronized void setDev(double dev) {
+        StrategyInfo.dev = dev;
+    }
+
     public static synchronized int getConnectCountTotal() {
         return connectCountTotal;
     }
@@ -72,55 +101,48 @@ public class StrategyInfo implements Runnable {
     public void setInfo() throws SigarException {
         if (isWindows) {
             OperatingSystemMXBean osMxBean = (OperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean();
-            cpu = osMxBean.getSystemCpuLoad();
-
+            setCpu(osMxBean.getSystemCpuLoad());
         } else {
             Sigar sigar = new Sigar();
-            double cpuTotal = 0;
+            // cpu
             CpuPerc[] cpuList = null;
+            double cpu = 0;
             cpuList = sigar.getCpuPercList();
             for (int i = 0; i < cpuList.length; i++) {
                 String cpuString = CpuPerc.format(cpuList[i].getCombined());
                 if (cpuString.contains("N")) {
                     cpuString = "100%";
                 }
-                cpuTotal += Double.valueOf(cpuString.substring(0, cpuString.length() - 1)) / 100;
+                cpu += Double.valueOf(cpuString.substring(0, cpuString.length() - 1)) / 100;
             }
-            setCpu(cpuTotal / cpuList.length);
-
-            /*FileSystem[] fsList = sigar.getFileSystemList();
-            for (int i = 0; i < fsList.length; i++) {
-                FileSystem fs = fsList[i];
-                FileSystemUsage usage = sigar.getFileSystemUsage(fs.getDirName());
-                if (fs.getType() == 2) {
-                    // 文件系统总大小
-                    System.out.println(fs.getDevName() + "总大小:    " + usage.getTotal() + "KB");
-                    // 文件系统剩余大小
-                    System.out.println(fs.getDevName() + "剩余大小:    " + usage.getFree() + "KB");
-                    // 文件系统可用大小
-                    System.out.println(fs.getDevName() + "可用大小:    " + usage.getAvail() + "KB");
-                    // 文件系统已经使用量
-                    System.out.println(fs.getDevName() + "已经使用量:    " + usage.getUsed() + "KB");
-                    double usePercent = usage.getUsePercent() * 100D;
-                    // 文件系统资源的利用率
-                    System.out.println(fs.getDevName() + "资源的利用率:    " + usePercent + "%");
+            setCpu(cpu / cpuList.length);
+            // memory
+            Mem mem = sigar.getMem();
+            long memoryFree = mem.getFree();
+            long memoryTotal = mem.getTotal();
+            double memory = (double)memoryFree / memoryTotal;
+            setMemory(memory);
+            // rxbytes
+            String[] netIfs = sigar.getNetInterfaceList();
+            long rxBytes = 0;
+            for (String name : netIfs) {
+                NetInterfaceStat interfaceStat = sigar.getNetInterfaceStat(name);
+                rxBytes += interfaceStat.getRxBytes();
+            }
+            setRxBytes(rxBytes);
+            // dev
+            FileSystem[] fsList = sigar.getFileSystemList();
+            long devFree = 0;
+            long devTotal = 0;
+            for (FileSystem fileSystem : fsList) {
+                FileSystemUsage usage = sigar.getFileSystemUsage(fileSystem.getDirName());
+                if (fileSystem.getType() == 2) {
+                    devFree += usage.getFree();
+                    devTotal += usage.getTotal();
                 }
             }
-            
-            String[] ifNames = sigar.getNetInterfaceList();
-            for (int i = 0; i < ifNames.length; i++) {
-                String name = ifNames[i];
-                NetInterfaceStat ifstat = sigar.getNetInterfaceStat(name);
-                System.out.println(name + "接收的总包裹数:" + ifstat.getRxPackets());// 接收的总包裹数
-                System.out.println(name + "发送的总包裹数:" + ifstat.getTxPackets());// 发送的总包裹数
-                System.out.println(name + "接收到的总字节数:" + ifstat.getRxBytes());// 接收到的总字节数
-                System.out.println(name + "发送的总字节数:" + ifstat.getTxBytes());// 发送的总字节数
-                System.out.println(name + "接收到的错误包数:" + ifstat.getRxErrors());// 接收到的错误包数
-                System.out.println(name + "发送数据包时的错误数:" + ifstat.getTxErrors());// 发送数据包时的错误数
-                System.out.println(name + "接收时丢弃的包数:" + ifstat.getRxDropped());// 接收时丢弃的包数
-                System.out.println(name + "发送时丢弃的包数:" + ifstat.getTxDropped());// 发送时丢弃的包数
-            }*/
-
+            double dev = (double)devFree / devTotal;
+            setDev(dev);
         }
 
     }

@@ -17,11 +17,11 @@ public class TimeStrategy implements Strategy {
         double[] rateList = new double[size];
         long total = 0;
         for (int i = 0; i < size; i++) {
-            total += ServerInfo.serverList.get(i).unitTime;
+            total += ServerInfo.serverList.get(i).getUnitTime();
         }
-        rateList[0] = (double)total / ServerInfo.serverList.get(0).unitTime;
+        rateList[0] = (double)total / ServerInfo.serverList.get(0).getUnitTime();
         for (int i = 1; i < size; i++) {
-            rateList[i] = (double)total / ServerInfo.serverList.get(i).unitTime;
+            rateList[i] = (double)total / ServerInfo.serverList.get(i).getUnitTime();
             rateList[i] = rateList[i - 1] + rateList[i];
         }
         // System.out.print(ServerInfo.serverList.get(0).unitTime + "--" + rateList[0] + " ");
