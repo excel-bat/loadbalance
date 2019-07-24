@@ -7,6 +7,8 @@ import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
+import org.hyperic.sigar.SigarException;
+
 /**
  * @author zhaohr16
  * @date 2019/07/10
@@ -24,15 +26,18 @@ public class StrategyInfoAcceptHandler
         ByteBuffer writeBuffer = null;
         try {
             byte[] bytes = new byte[1024];
-            double wrongRate =
-                (double)StrategyInfo.connectFailed / (StrategyInfo.connectFailed + StrategyInfo.connectFinished);
-            // cpu mem rxbytes dev connect wrong
+            StrategyInfo.setInfo();
+            // cpu mem rxbytes dev process accepted finished failed
             String message = String.valueOf(StrategyInfo.getCpu()) + ":" + String.valueOf(StrategyInfo.getMemory())
                 + ":" + String.valueOf(StrategyInfo.getRxBytes()) + ":" + String.valueOf(StrategyInfo.getDev()) + ":"
-                + String.valueOf(StrategyInfo.getConnectCountActive()) + ":" + String.valueOf(wrongRate);
+                + String.valueOf(StrategyInfo.getProcess()) + ":" + String.valueOf(StrategyInfo.getConnectAccepted())
+                + ":" + String
+                    .valueOf(StrategyInfo.getConnectFinished() + ":" + String.valueOf(StrategyInfo.getConnectFailed()));
             System.arraycopy(message.getBytes("UTF-8"), 0, bytes, 0, message.length());;
             writeBuffer = ByteBuffer.wrap(bytes);
         } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (SigarException e) {
             e.printStackTrace();
         }
         socketChannel.write(writeBuffer, writeBuffer, new CompletionHandler<Integer, ByteBuffer>() {

@@ -16,7 +16,7 @@ public class MinConnectActiveStrategy implements Strategy {
         ServerInfo result = null;
         int minConnect = 100000;
         for (ServerInfo serverInfo : serverList) {
-            int connect = serverInfo.getConnectCountActive();
+            int connect = serverInfo.getConnectActiveServer();
             // System.out.print(String.valueOf(connect) + " ");
             if (connect < minConnect) {
                 minConnect = connect;
@@ -26,6 +26,12 @@ public class MinConnectActiveStrategy implements Strategy {
         // System.out.print(serverList.indexOf(result));
         // System.out.println();
         return result;
+    }
+
+    @Override
+    public void setWeight() {
+        // TODO Auto-generated method stub
+
     }
 
 }

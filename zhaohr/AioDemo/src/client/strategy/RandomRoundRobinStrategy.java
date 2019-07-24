@@ -24,4 +24,10 @@ public class RandomRoundRobinStrategy implements Strategy {
         return serverList.get(i);
     }
 
+    @Override
+    public void setWeight() {
+        // TODO Auto-generated method stub
+
+    }
+
 }

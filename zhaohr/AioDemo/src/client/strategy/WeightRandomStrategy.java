@@ -33,4 +33,10 @@ public class WeightRandomStrategy implements Strategy {
         return result;
     }
 
+    @Override
+    public void setWeight() {
+        // TODO Auto-generated method stub
+
+    }
+
 }

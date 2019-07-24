@@ -8,6 +8,8 @@ import data.ServerInfo;
  */
 public interface Strategy {
 
-    ServerInfo getNextServer();
+    public ServerInfo getNextServer();
+
+    public void setWeight();
 
 }

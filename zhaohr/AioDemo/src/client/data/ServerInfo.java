@@ -13,22 +13,26 @@ public class ServerInfo {
     public int filePort;
     public int infoPort;
     private double cpu = 0;
-    private int connectCountActive;
     private double memory = 0;
     private long rxBytes = 0;// 流量总数，需要取段处理
     private double rxSpeed = 0;
     private double dev = 0;
+    private int process = 0;
     public int weight;
     public int effectiveWeight;
     public int currentWeight;
     public long startTime = 0;
     public long endTime = 0;
     private long unitTime = 1;
-    private int connectSend = 0;
-    private int connectFinished = 0;
-    private int connectFailed = 0;
-    public double connectServerWrongRate = 0;
-    public double connectClientWrongRate = 0;
+    private int connectSendClient = 0;
+    private int connectFinishedClient = 0;
+    private int connectFailedClient = 0;
+    private volatile int connectAccepctedServer = 0;
+    private volatile int connectFinishedServer = 0;
+    private volatile int connectFailedServer = 0;
+    private volatile int connectActiveServer = 0;
+    public double connectWrongRateClient = 0;
+    public double connectWrongRateServer = 0;
     private static int connectSendTotal = 0;
     private static int connectFinishedTotal = 0;
     private static int connectFailedTotal = 0;
@@ -53,10 +57,19 @@ public class ServerInfo {
         currentWeight = 0;
     }
 
-    public void resetWeight(int weight) {
+    public synchronized void resetWeight(int weight) {
         this.weight = weight;
         effectiveWeight = weight;
         currentWeight = 0;
+    }
+
+    public synchronized static void setWeight(int[] weight) {
+        for (int i = 0; i < serverList.size(); i++) {
+            ServerInfo serverInfo = serverList.get(i);
+            serverInfo.weight = weight[i];
+            serverInfo.effectiveWeight = weight[i];
+            serverInfo.currentWeight = 0;
+        }
     }
 
     public static void setServerList() {
@@ -68,84 +81,117 @@ public class ServerInfo {
 
     }
 
-    public synchronized double getCpu() {
+    public double getCpu() {
         return cpu;
     }
 
-    public synchronized void setCpu(double cpu) {
+    public void setCpu(double cpu) {
         this.cpu = cpu;
     }
 
-    public synchronized int getConnectCountActive() {
-        return connectCountActive;
-    }
-
-    public synchronized void setConnectCountActive(int count) {
-        this.connectCountActive = count;
-    }
-
-    public synchronized double getMemory() {
+    public double getMemory() {
         return memory;
     }
 
-    public synchronized void setMemory(double memory) {
+    public void setMemory(double memory) {
         this.memory = memory;
     }
 
-    public synchronized long getRxBytes() {
+    public long getRxBytes() {
         return rxBytes;
     }
 
-    public synchronized void setRxBytes(long rxBytes) {
+    public void setRxBytes(long rxBytes) {
         rxSpeed = (double)(rxBytes - this.rxBytes) / INTERVAL;
         this.rxBytes = rxBytes;
     }
 
-    public synchronized double getRxSpeed() {
+    public double getRxSpeed() {
         return rxSpeed;
     }
 
-    public synchronized double getDev() {
+    public double getDev() {
         return dev;
     }
 
-    public synchronized void setDev(double dev) {
+    public void setDev(double dev) {
         this.dev = dev;
     }
 
-    public synchronized void setUnitTime(long time) {
+    public int getProcess() {
+        return process;
+    }
+
+    public void setProcess(int process) {
+        this.process = process;
+    }
+
+    public void setUnitTime(long time) {
         this.unitTime = time;
     }
 
-    public synchronized long getUnitTime() {
+    public long getUnitTime() {
         return unitTime;
     }
 
-    public synchronized void addConnectSend() {
-        connectSend++;
+    public synchronized void addConnectSendClient() {
+        connectSendClient++;
         connectSendTotal++;
     }
 
-    public synchronized int getConnectSend() {
-        return connectSend;
+    public synchronized int getConnectSendClient() {
+        return connectSendClient;
     }
 
-    public synchronized void addConnectFinished() {
-        connectFinished++;
+    public synchronized void addConnectFinishedClient() {
+        connectFinishedClient++;
         connectFinishedTotal++;
     }
 
-    public synchronized int getConnectFinished() {
-        return connectFinished;
+    public synchronized int getConnectFinishedClient() {
+        return connectFinishedClient;
     }
 
-    public synchronized void addConnectFailed() {
-        connectFailed++;
+    public synchronized void addConnectFailedClient() {
+        effectiveWeight--;
+        connectFailedClient++;
         connectFailedTotal++;
     }
 
-    public synchronized int getConnectFailed() {
-        return connectFailed;
+    public int getConnectAcceptedServer() {
+        return connectAccepctedServer;
+    }
+
+    public void setConnectAcceptedServer(int connectAcceptedServer) {
+        this.connectAccepctedServer = connectAcceptedServer;
+    }
+
+    public int getConnectFinishedServer() {
+        return connectFinishedServer;
+    }
+
+    public void setConnectFinishedServer(int connectFinishedServer) {
+        this.connectFinishedServer = connectFinishedServer;
+    }
+
+    public int getConnectFailedServer() {
+        return connectFailedServer;
+    }
+
+    public void setConnectFailedServer(int connectAcceptedServer) {
+        this.connectFailedServer = connectFailedServer;
+    }
+
+    public int getConnectActiveServer() {
+        return connectActiveServer;
+    }
+
+    public void setConnectActiveServer() {
+        this.connectActiveServer = connectAccepctedServer - connectFailedServer - connectFinishedServer;
+    }
+
+    public synchronized int getConnectFailedClient() {
+        return connectFailedClient;
     }
 
     public static synchronized int getConnectSendTotal() {

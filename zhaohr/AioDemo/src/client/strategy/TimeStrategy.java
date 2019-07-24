@@ -38,8 +38,12 @@ public class TimeStrategy implements Strategy {
                 break;
             }
         }
-
         return result;
+    }
+
+    @Override
+    public void setWeight() {
+        // TODO Auto-generated method stub
 
     }
 

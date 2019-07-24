@@ -28,4 +28,10 @@ public class MinCpuStrategy implements Strategy {
         return result;
     }
 
+    @Override
+    public void setWeight() {
+        // TODO Auto-generated method stub
+
+    }
+
 }

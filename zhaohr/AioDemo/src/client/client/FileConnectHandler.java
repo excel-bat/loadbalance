@@ -64,7 +64,7 @@ public class FileConnectHandler implements CompletionHandler<Void, AsynchronousS
                             // rw标识错误
                         }
                     } catch (Exception e) {
-                        serverInfo.addConnectFailed();
+                        serverInfo.addConnectFailedClient();
                         // e.printStackTrace();
                     }
                 }
@@ -72,7 +72,7 @@ public class FileConnectHandler implements CompletionHandler<Void, AsynchronousS
 
             @Override
             public void failed(Throwable exc, ByteBuffer attachment) {
-                serverInfo.addConnectFailed();
+                serverInfo.addConnectFailedClient();
                 // exc.printStackTrace();
             }
         });
@@ -81,11 +81,8 @@ public class FileConnectHandler implements CompletionHandler<Void, AsynchronousS
 
     @Override
     public void failed(Throwable exc, AsynchronousSocketChannel attachment) {
-
-        // WeightRoundRobinStrategy
-        serverInfo.effectiveWeight--;
         // exc.printStackTrace();
-        serverInfo.addConnectFailed();
+        serverInfo.addConnectFailedClient();
     }
 
     public void doRead(AsynchronousSocketChannel socketChannel) {
@@ -100,11 +97,11 @@ public class FileConnectHandler implements CompletionHandler<Void, AsynchronousS
                 String body;
                 try {
                     body = new String(bytes, "UTF-8");
-                    serverInfo.addConnectFinished();
+                    serverInfo.addConnectFinishedClient();
                     socketChannel.close();
 
                 } catch (IOException e) {
-                    serverInfo.addConnectFailed();
+                    serverInfo.addConnectFailedClient();
                     // e.printStackTrace();
                 }
             }
@@ -112,7 +109,7 @@ public class FileConnectHandler implements CompletionHandler<Void, AsynchronousS
             @Override
             public void failed(Throwable exc, ByteBuffer attachment) {
                 // exc.printStackTrace();
-                serverInfo.addConnectFailed();
+                serverInfo.addConnectFailedClient();
             }
         });
 
@@ -131,10 +128,10 @@ public class FileConnectHandler implements CompletionHandler<Void, AsynchronousS
                 try {
                     body = new String(bytes, "UTF-8");
                     // System.out.println("到" + socketChannel.getRemoteAddress().toString() + "的写反馈：" + body);
-                    serverInfo.addConnectFinished();
+                    serverInfo.addConnectFinishedClient();
                     socketChannel.close();
                 } catch (IOException e) {
-                    serverInfo.addConnectFailed();
+                    serverInfo.addConnectFailedClient();
                     // e.printStackTrace();
                 }
             }
@@ -142,7 +139,7 @@ public class FileConnectHandler implements CompletionHandler<Void, AsynchronousS
             @Override
             public void failed(Throwable exc, ByteBuffer attachment) {
                 // exc.printStackTrace();
-                serverInfo.addConnectFailed();
+                serverInfo.addConnectFailedClient();
             }
         });
     }

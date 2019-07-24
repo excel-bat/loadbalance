@@ -1,6 +1,7 @@
 package server;
 
 import java.lang.management.ManagementFactory;
+import java.util.Map;
 import java.util.Properties;
 
 import org.hyperic.sigar.CpuPerc;
@@ -19,18 +20,17 @@ import tools.SigarInfo;
  * @author zhaohr16
  * @date 2019/07/10
  */
-public class StrategyInfo implements Runnable {
+public class StrategyInfo {
     private SigarInfo sigarInfo;
     private static double cpu = 0;
     private static double memory = 0;
     private static long rxBytes = 0;// 流量总数，需要取段处理
     private static double dev = 0;
+    private static int process = 0;
     private static boolean isWindows;
-    private static int connectCountTotal;
-    private static int connectCountActive;
-    public static int connectAccepted = 0;
-    public static int connectFinished = 0;
-    public static int connectFailed = 0;
+    private static int connectAccepted = 0;
+    private static int connectFinished = 0;
+    private static int connectFailed = 0;
 
     public StrategyInfo() {
         sigarInfo = new SigarInfo();
@@ -40,8 +40,6 @@ public class StrategyInfo implements Runnable {
         } else {
             isWindows = false;
         }
-        connectCountActive = 0;
-        connectCountTotal = 0;
         try {
             setInfo();
         } catch (SigarException e) {
@@ -50,55 +48,71 @@ public class StrategyInfo implements Runnable {
 
     }
 
-    public static synchronized double getCpu() {
+    public static double getCpu() {
         return cpu;
     }
 
-    private static synchronized void setCpu(double cpu) {
+    private static void setCpu(double cpu) {
         StrategyInfo.cpu = cpu;
     }
 
-    public static synchronized double getMemory() {
+    public static double getMemory() {
         return memory;
     }
 
-    private static synchronized void setMemory(double memory) {
+    private static void setMemory(double memory) {
         StrategyInfo.memory = memory;
     }
 
-    public static synchronized long getRxBytes() {
+    public static long getRxBytes() {
         return rxBytes;
     }
 
-    private static synchronized void setRxBytes(long rxBytes) {
+    private static void setRxBytes(long rxBytes) {
         StrategyInfo.rxBytes = rxBytes;
     }
 
-    public static synchronized double getDev() {
+    public static double getDev() {
         return dev;
     }
 
-    private static synchronized void setDev(double dev) {
+    private static void setDev(double dev) {
         StrategyInfo.dev = dev;
     }
 
-    public static synchronized int getConnectCountTotal() {
-        return connectCountTotal;
+    public static int getProcess() {
+        return process;
     }
 
-    public static synchronized void addConnectCountTotal() {
-        StrategyInfo.connectCountTotal++;
+    private static void setProcess(int process) {
+        StrategyInfo.process = process;
     }
 
-    public static synchronized int getConnectCountActive() {
-        return connectCountActive;
+    public static synchronized int getConnectAccepted() {
+        return connectAccepted;
     }
 
-    public static synchronized void setConnectCountActive(int connectCountActive) {
-        StrategyInfo.connectCountActive = connectCountActive;
+    public static synchronized void addConnectAccepted() {
+        connectAccepted++;
     }
 
-    public void setInfo() throws SigarException {
+    public static synchronized int getConnectFinished() {
+        return connectFinished;
+    }
+
+    public static synchronized void addConnectFinished() {
+        connectFinished++;
+    }
+
+    public static synchronized int getConnectFailed() {
+        return connectFinished;
+    }
+
+    public static synchronized void addConnectFailed() {
+        connectFinished++;
+    }
+
+    public static void setInfo() throws SigarException {
         if (isWindows) {
             OperatingSystemMXBean osMxBean = (OperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean();
             setCpu(osMxBean.getSystemCpuLoad());
@@ -143,20 +157,11 @@ public class StrategyInfo implements Runnable {
             }
             double dev = (double)devFree / devTotal;
             setDev(dev);
+            // process 进程数
+            Map<Thread, StackTraceElement[]> maps = Thread.getAllStackTraces();
+            int process = maps.size();
+            setProcess(process);
         }
 
     }
-
-    @Override
-    public void run() {
-        while (true) {
-            try {
-                setInfo();
-            } catch (SigarException e) {
-                e.printStackTrace();
-            }
-
-        }
-    }
-
 }

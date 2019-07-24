@@ -29,7 +29,7 @@ public class FileAcceptHandler
     public void completed(AsynchronousSocketChannel socketChannel,
         AsynchronousServerSocketChannel serverSocketChannel) {
         serverSocketChannel.accept(serverSocketChannel, this);
-        StrategyInfo.connectAccepted++;
+        StrategyInfo.addConnectAccepted();
         ByteBuffer readBuffer = ByteBuffer.allocate(BUFFER_SIZE);
         socketChannel.read(readBuffer, readBuffer, new CompletionHandler<Integer, ByteBuffer>() {
 
@@ -46,16 +46,15 @@ public class FileAcceptHandler
                     String infoString = body.substring(8);
                     if (opr == READ) {
                         // System.out.println("服务器收到读请求，来自：" + socketChannel.getRemoteAddress().toString());
-                        StrategyInfo.addConnectCountTotal();
                         doRead(socketChannel, lengthString);
                     } else if (opr == WRITE) {
                         // System.out.println("服务器收到写请求，来自：" + socketChannel.getRemoteAddress().toString());
-                        StrategyInfo.addConnectCountTotal();
                         doWrite(socketChannel, lengthString, infoString);
                     } else {
 
                     }
                 } catch (Exception e) {
+                    StrategyInfo.addConnectFailed();
                     e.printStackTrace();
                 }
 
@@ -63,7 +62,7 @@ public class FileAcceptHandler
 
             @Override
             public void failed(Throwable exc, ByteBuffer attachment) {
-                StrategyInfo.connectFailed++;
+                StrategyInfo.addConnectFailed();
                 exc.printStackTrace();
             }
         });
@@ -72,7 +71,7 @@ public class FileAcceptHandler
 
     @Override
     public void failed(Throwable exc, AsynchronousServerSocketChannel attachment) {
-        StrategyInfo.connectFailed++;
+        StrategyInfo.addConnectFailed();
         exc.printStackTrace();
     }
 
@@ -110,10 +109,9 @@ public class FileAcceptHandler
                     socketChannel.write(buffer, buffer, this);
                 } else {
                     try {
-                        StrategyInfo.connectFinished++;
+                        StrategyInfo.addConnectFinished();
                         socketChannel.close();
                     } catch (IOException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 }
@@ -121,7 +119,7 @@ public class FileAcceptHandler
 
             @Override
             public void failed(Throwable exc, ByteBuffer attachment) {
-                StrategyInfo.connectFailed++;
+                StrategyInfo.addConnectFailed();
                 exc.printStackTrace();
             }
         });
@@ -167,10 +165,10 @@ public class FileAcceptHandler
                     socketChannel.write(buffer, buffer, this);
                 } else {
                     try {
-                        StrategyInfo.connectFinished++;
+                        StrategyInfo.addConnectFinished();
                         socketChannel.close();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        StrategyInfo.addConnectFailed();
                     }
 
                 }
@@ -178,7 +176,7 @@ public class FileAcceptHandler
 
             @Override
             public void failed(Throwable exc, ByteBuffer attachment) {
-                StrategyInfo.connectFailed++;
+                StrategyInfo.addConnectFailed();
                 exc.printStackTrace();
             }
         });

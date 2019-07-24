@@ -21,14 +21,11 @@ public class Server {
     public static void main(String[] args) {
         try {
             ExecutorService executor = WorkThreadPool.newFixedThreadPool(3);
-            executor.execute(new StrategyInfo());
+            // executor.execute(new StrategyInfo());
             executor.execute(new StrategyInfoServer(IP, INFOPORT));
             executor.execute(new FileServer(IP, FILEPORT));
             while (true) {
-                logger
-                    .info("服务端接收请求数： " + StrategyInfo.getConnectCountTotal() + "  当前cpu占用率： " + StrategyInfo.getCpu());
-                logger.info(StrategyInfo.connectAccepted + " " + StrategyInfo.connectFinished + " "
-                    + StrategyInfo.connectFailed + " ");
+                logger.info("服务端接收请求数： " + StrategyInfo.getConnectAccepted() + "  当前cpu占用率： " + StrategyInfo.getCpu());
                 Thread.sleep(3000);
             }
         } catch (IOException e) {

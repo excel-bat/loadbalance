@@ -7,14 +7,18 @@ import data.ServerInfo;
  * @date 2019/07/08
  */
 public class StrategySelector {
-    public Strategy strategy;
+    public static Strategy strategy;
 
     public StrategySelector() {
-        strategy = new InfoStrategy();
+        strategy = new RandomStrategy();
     }
 
-    public ServerInfo getNextServer() {
+    public static ServerInfo getNextServer() {
         return strategy.getNextServer();
+    }
+
+    public static void setWeight() {
+        strategy.setWeight();
     }
 
 }

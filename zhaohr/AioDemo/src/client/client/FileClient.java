@@ -20,12 +20,10 @@ public class FileClient implements Runnable {
 
     private ThreadPoolExecutor executor;
     private AsynchronousChannelGroup channelGroup;
-    private StrategySelector selector;
 
     public FileClient() throws IOException {
         executor = WorkThreadPool.newFixedThreadPool(1000);
         channelGroup = AsynchronousChannelGroup.withThreadPool(executor);
-        selector = new StrategySelector();
     }
 
     private static double getPossionProbability(int k, double lamda) {
@@ -65,15 +63,16 @@ public class FileClient implements Runnable {
                 ServerInfo.getConnectFinishedTotal() + "/" + ServerInfo.getConnectSendTotal() + "/" + countTotal + " "
                     + new DecimalFormat("0.000%").format((double)ServerInfo.getConnectSendTotal() / countTotal));
             for (ServerInfo serverInfo : ServerInfo.serverList) {
-                serverInfo.connectClientWrongRate = (double)serverInfo.getConnectFailed()
-                    / (serverInfo.getConnectFailed() + serverInfo.getConnectFinished());
-                System.out.println(serverInfo.getConnectSend() + " " + serverInfo.getConnectFinished() + " "
-                    + serverInfo.getConnectFailed() + " "
-                    + new DecimalFormat("0.000%").format(serverInfo.connectClientWrongRate) + " "
-                    + new DecimalFormat("0.000%").format(serverInfo.connectServerWrongRate));
+                double connectClientWrongRate = (double)serverInfo.getConnectFailedClient()
+                    / (serverInfo.getConnectFailedClient() + serverInfo.getConnectFinishedClient());
+                double connectServerWrongRate = (double)serverInfo.getConnectFailedServer()
+                    / (serverInfo.getConnectFailedServer() + serverInfo.getConnectFinishedServer());
+                System.out.println(serverInfo.getConnectFinishedClient() + "/" + serverInfo.getConnectFailedClient()
+                    + "/" + serverInfo.getConnectSendClient() + " " + serverInfo.getConnectFinishedServer() + "/"
+                    + serverInfo.getConnectFailedServer() + "/" + serverInfo.getConnectAcceptedServer() + " "
+                    + new DecimalFormat("0.000%").format(connectClientWrongRate) + " "
+                    + new DecimalFormat("0.000%").format(connectServerWrongRate));
             }
-            System.out.println(ServerInfo.getConnectSendTotal() + " " + ServerInfo.getConnectFinishedTotal() + " "
-                + ServerInfo.getConnectFailedTotal());
             System.out.println();
 
             time = System.currentTimeMillis();
@@ -85,8 +84,8 @@ public class FileClient implements Runnable {
                     try {
                         if (ServerInfo.getConnectSendTotal() - ServerInfo.getConnectFinishedTotal()
                             - ServerInfo.getConnectFailedTotal() < 1000) {
-                            ServerInfo nextServer = selector.getNextServer();
-                            nextServer.addConnectSend();
+                            ServerInfo nextServer = StrategySelector.getNextServer();
+                            nextServer.addConnectSendClient();
                             // System.out.println(ServerInfo.serverList.indexOf(nextServer));
                             AsynchronousSocketChannel socketChannel = AsynchronousSocketChannel.open(channelGroup);
                             socketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);

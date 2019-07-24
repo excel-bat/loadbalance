@@ -11,11 +11,11 @@ import data.ServerInfo;
 public class WeightRoundRobinStrategy implements Strategy {
 
     @Override
-    public ServerInfo getNextServer() {
+    public synchronized ServerInfo getNextServer() {
+        ServerInfo result = null;
         List<ServerInfo> serverList = ServerInfo.serverList;
         int totalWeight = 0;
         int maxCurrentWeight = 0;
-        ServerInfo result = null;
         for (ServerInfo serverInfo : serverList) {
             totalWeight += serverInfo.effectiveWeight;
             serverInfo.currentWeight = serverInfo.currentWeight + serverInfo.effectiveWeight;
@@ -29,6 +29,12 @@ public class WeightRoundRobinStrategy implements Strategy {
             result.effectiveWeight++;
         }
         return result;
+    }
+
+    @Override
+    public void setWeight() {
+        // TODO Auto-generated method stub
+
     }
 
 }
