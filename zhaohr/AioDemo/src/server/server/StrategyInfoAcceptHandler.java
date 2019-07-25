@@ -29,10 +29,10 @@ public class StrategyInfoAcceptHandler
             StrategyInfo.setInfo();
             // cpu mem rxbytes dev process accepted finished failed
             String message = String.valueOf(StrategyInfo.getCpu()) + ":" + String.valueOf(StrategyInfo.getMemory())
-                + ":" + String.valueOf(StrategyInfo.getRxBytes()) + ":" + String.valueOf(StrategyInfo.getDev()) + ":"
-                + String.valueOf(StrategyInfo.getProcess()) + ":" + String.valueOf(StrategyInfo.getConnectAccepted())
-                + ":" + String
-                    .valueOf(StrategyInfo.getConnectFinished() + ":" + String.valueOf(StrategyInfo.getConnectFailed()));
+            + ":" + String.valueOf(StrategyInfo.getRxBytes()) + ":" + String.valueOf(StrategyInfo.getDev()) + ":"
+            + String.valueOf(StrategyInfo.getProcess()) + ":" + String.valueOf(StrategyInfo.getConnectAccepted())
+            + ":" + String.valueOf(StrategyInfo.getConnectFinished()) + ":"
+            + String.valueOf(StrategyInfo.getConnectFailed() + ":");
             System.arraycopy(message.getBytes("UTF-8"), 0, bytes, 0, message.length());;
             writeBuffer = ByteBuffer.wrap(bytes);
         } catch (UnsupportedEncodingException e) {

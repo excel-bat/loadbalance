@@ -36,7 +36,7 @@ public class ServerInfo {
     private static int connectSendTotal = 0;
     private static int connectFinishedTotal = 0;
     private static int connectFailedTotal = 0;
-    public static final int INTERVAL = 50;
+    public static final int INTERVAL = 200;
     public static List<ServerInfo> serverList = new ArrayList<ServerInfo>();
 
     public ServerInfo(String ip, int filePort, int infoPort) {
@@ -74,10 +74,10 @@ public class ServerInfo {
 
     public static void setServerList() {
         // serverList.add(new ServerInfo("10.2.0.211", 8000, 8001, 1));
-        // serverList.add(new ServerInfo("127.0.0.1", 8000, 8001));
-        serverList.add(new ServerInfo("10.2.0.102", 8000, 8001));
-        serverList.add(new ServerInfo("10.2.0.103", 8000, 8001));
-        serverList.add(new ServerInfo("10.2.0.101", 8000, 8001));
+        //serverList.add(new ServerInfo("127.0.0.1", 8000, 8001));
+         serverList.add(new ServerInfo("10.2.0.102", 8000, 8001, 20));
+         serverList.add(new ServerInfo("10.2.0.103", 8000, 8001, 5));
+        // serverList.add(new ServerInfo("10.2.0.101", 8000, 8001));
 
     }
 
@@ -102,7 +102,7 @@ public class ServerInfo {
     }
 
     public void setRxBytes(long rxBytes) {
-        rxSpeed = (double)(rxBytes - this.rxBytes) / INTERVAL;
+        rxSpeed = (double)(rxBytes - this.rxBytes) / INTERVAL / 1000;
         this.rxBytes = rxBytes;
     }
 

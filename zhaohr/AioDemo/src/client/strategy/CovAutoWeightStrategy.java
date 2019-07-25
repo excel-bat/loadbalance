@@ -18,8 +18,8 @@ public class CovAutoWeightStrategy implements Strategy {
     private double[] load = new double[serverLength];
     private int[] weight = new int[serverLength];
     private int count = 0;
-    double connectW = 1, cpuW = 1, diskW = 1, memoryW = 1, processW = 1, speedW = 1, wrongAtServerW = 1,
-        wrongAtClientW = 1;
+    double connectW = 0, cpuW = 0, diskW = 0, memoryW = 0, processW = 0, speedW = 0, wrongAtServerW = 0,
+        wrongAtClientW = 0;
 
     private double getCov(double[] x, double[] y) {
         int length = x.length;
@@ -39,7 +39,7 @@ public class CovAutoWeightStrategy implements Strategy {
     }
 
     private double getW(double[] x, double[] y) {
-        double zero = Math.sqrt(getCov(x, x)) * Math.sqrt(getCov(y, y));
+        double zero = Math.sqrt(Math.abs(getCov(x, x))) * Math.sqrt(Math.abs(getCov(y, y)));
         if (zero == 0) {
             return 0;
         } else {
@@ -71,50 +71,64 @@ public class CovAutoWeightStrategy implements Strategy {
                 / (serverInfo.getConnectFinishedClient() + serverInfo.getConnectFailedClient());
         }
         if (count < M - 1) {
+            count++;
             return;
         } else {
             double loadTotal = 0;
             int jlast = (count - 1) % M;
             for (int i = 0; i < serverLength; i++) {
-                if (connect[jlast] != connect[j]) {
-                    connectW = getCov(connect[i], response[i]);
+                if (connect[i][jlast] != connect[i][j]) {
+                    connectW = getW(connect[i], response[i]);
                 }
-                if (cpu[jlast] != cpu[j]) {
-                    cpuW = getCov(cpu[i], response[i]);
+                if (cpu[i][jlast] != cpu[i][j]) {
+                    cpuW = getW(cpu[i], response[i]);
                 }
-                if (disk[jlast] != disk[j]) {
-                    diskW = getCov(disk[i], response[i]);
+                if (disk[i][jlast] != disk[i][j]) {
+                    diskW = getW(disk[i], response[i]);
                 }
-                if (memory[jlast] != memory[j]) {
-                    memoryW = getCov(disk[i], response[i]);
+                if (memory[i][jlast] != memory[i][j]) {
+                    memoryW = getW(disk[i], response[i]);
                 }
-                if (process[jlast] != process[j]) {
-                    processW = getCov(process[i], response[i]);
+                if (process[i][jlast] != process[i][j]) {
+                    processW = getW(process[i], response[i]);
                 }
-                if (speed[jlast] != speed[j]) {
-                    speedW = getCov(speed[i], response[i]);
+                if (speed[i][jlast] != speed[i][j]) {
+                    speedW = getW(speed[i], response[i]);
                 }
-                if (wrongAtServer[jlast] != wrongAtServer[j]) {
-                    wrongAtServerW = getCov(wrongAtServer[i], response[i]);
+                if (wrongAtServer[i][jlast] != wrongAtServer[i][j]) {
+                    wrongAtServerW = getW(wrongAtServer[i], response[i]);
                 }
-                if (wrongAtClient[jlast] != wrongAtClient[j]) {
-                    wrongAtClientW = getCov(wrongAtClient[i], response[i]);
+                if (wrongAtClient[i][jlast] != wrongAtClient[i][j]) {
+                    wrongAtClientW = getW(wrongAtClient[i], response[i]);
                 }
-                double totalW = connectW + cpuW + diskW + memoryW + processW + speedW + wrongAtServerW + wrongAtClientW;
-                load[i] = connectW / totalW * connect[i][j] + cpuW / totalW * cpu[i][j] + diskW / totalW * disk[i][j]
+                // double totalW = connectW + cpuW + diskW + memoryW + processW + speedW + wrongAtServerW +
+                // wrongAtClientW;
+                double totalW = cpuW + diskW + memoryW + wrongAtClientW;
+                /*load[i] = connectW / totalW * connect[i][j] + cpuW / totalW * cpu[i][j] + diskW / totalW * disk[i][j]
                     + memoryW / totalW * memory[i][j] + processW / totalW * process[i][j]
-                    + speedW / totalW * speed[i][j] + wrongAtServerW / totalW * wrongAtServer[i][j]
+                    + speedW / totalW * speed[i][j]
+                    + wrongAtServerW / totalW * wrongAtServer[i][j] + wrongAtClientW / totalW * wrongAtClient[i][j];*/
+                load[i] = cpuW / totalW * cpu[i][j] + diskW / totalW * disk[i][j] + memoryW / totalW * memory[i][j]
                     + wrongAtClientW / totalW * wrongAtClient[i][j];
                 loadTotal += load[i];
+                /*System.out.println(connectW / totalW * connect[i][j] + " " + cpuW / totalW * cpu[i][j] + " " + diskW / totalW * disk[i][j]
+                        + " " + memoryW / totalW * memory[i][j] + " " + processW / totalW * process[i][j]
+                                + " " + speedW / totalW * speed[i][j] + " " + wrongAtServerW / totalW * wrongAtServer[i][j]
+                                + " " + wrongAtClientW / totalW * wrongAtClient[i][j]);*/
+
             }
             for (int i = 0; i < serverLength; i++) {
-                weight[i] = (int)(loadTotal / M / load[i] * 100);
-                weight[i] = Math.max(weight[i], WEIGHTL);
-                weight[i] = Math.min(weight[i], WEIGHTH);
+                if (!Float.isNaN((float)load[i])) {
+                    weight[i] = (int)(loadTotal / M / load[i] * 100);
+                    weight[i] = Math.max(weight[i], WEIGHTL);
+                    weight[i] = Math.min(weight[i], WEIGHTH);
+                }
+                // System.out.println(weight[i] + " "+load[i]);
             }
+            // System.out.println();
             ServerInfo.setWeight(weight);
+            count++;
         }
-        count++;
     }
 
 }

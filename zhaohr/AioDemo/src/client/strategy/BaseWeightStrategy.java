@@ -7,8 +7,8 @@ import data.ServerInfo;
  * @date 2019/07/24
  */
 public class BaseWeightStrategy implements Strategy {
-    private static final double R1 = 0.25, R2 = 0.25, R3 = 0.05, R4 = 0.05, R5 = 0.15, R6 = 0.25;
-    private static final double BETA = 0.5, BETAL = 0.4, BETAH = 0.6, DELTA = 0.191, WEIGHTL = 1, WEIGHTH = 100;
+    private static final double R1 = 0.05, R2 = 0.35, R3 = 0.05, R4 = 0.05, R5 = 0.05, R6 = 0.45;
+    private static final double BETA = 0.4, BETAL = 0.3, BETAH = 0.5, DELTA = 0.191, WEIGHTL = 1, WEIGHTH = 100;
     private WeightRoundRobinStrategy weightRoundRobinStrategy = new WeightRoundRobinStrategy();
     private int serverLength = ServerInfo.serverList.size();
     private double[] connect = new double[serverLength], cpu = new double[serverLength],
@@ -42,16 +42,24 @@ public class BaseWeightStrategy implements Strategy {
         }
 
         for (int i = 0; i < serverLength; i++) {
-            connect[i] /= connectTotal;
+            if (connectTotal == 0) {
+                connect[i] = (double)1 / serverLength;
+            } else {
+                connect[i] /= connectTotal;
+            }
+
             process[i] /= processTotal;
             response[i] /= responseTotal;
             load[i] =
                 R1 * connect[i] + R2 * cpu[i] + R3 * disk[i] + R4 * memory[i] + R5 * process[i] + R6 * response[i];
             if (load[i] > BETAH) {
-                weight[i] = (int)Math.max(WEIGHTL, (1 - DELTA) * weight[i]);
+                weight[i] = (int)Math.round(Math.max(WEIGHTL, (1 - DELTA) * weight[i]));
             } else if (load[i] < BETAL) {
-                weight[i] = (int)Math.min(WEIGHTH, (1 + DELTA) * weight[i]);
+                weight[i] = (int)Math.round(Math.min(WEIGHTH, (1 + DELTA) * weight[i]));
             }
+            /*System.out.print("Info: "+i + " ");
+            System.out.println(weight[i] +" "+ connect[i] + " "+cpu[i] +" "+disk[i] + " " + memory[i]
+            		 + " " + process[i] + " " + response[i] + " "+load[i]);*/
         }
         ServerInfo.setWeight(weight);
 

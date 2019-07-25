@@ -52,7 +52,7 @@ public class FileClient implements Runnable {
 
         while (true) {
             int count = 60 * getPossionVariable(50);
-            if (i > 300) {
+            if (i > 1000) {
                 count = 0;
             }
             int countPrint = count;
